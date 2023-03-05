@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #define OUTPUT_NAME_SIZE 500
 
@@ -31,6 +32,7 @@ int main(int argc, char *argv[]) {
     goto error;
   }
 
+  
   /* Assign names to arguments for better abstraction */
   char output_name[OUTPUT_NAME_SIZE];
   strncpy(output_name, argv[1], OUTPUT_NAME_SIZE);
@@ -41,6 +43,14 @@ int main(int argc, char *argv[]) {
 
   if (strlen(hex_color_arg) != 6) {
     goto error;
+  }
+
+  /*avoid command injection*/
+  for (int i = 0; i < strlen(output_name); i++) {
+    if (output_name[i] == ' ' || output_name[i] == ';' || output_name[i] == ':' || 
+        output_name[i] == '*' || output_name[i] == '?' || output_name[i] == '|') {
+      goto error;
+    }
   }
 
   unsigned long height = strtol(height_arg, &end_ptr, 10);
@@ -107,6 +117,7 @@ int main(int argc, char *argv[]) {
     goto error_px;
   }
 
+  free(palette);
   free(img->px);
   free(img);
 
@@ -123,7 +134,7 @@ int main(int argc, char *argv[]) {
    * By calling fflush we force the program to output "Size " right away
    */
   fflush(stdout);
-  strcat(command, "stat -c %s ");
+  strcat(command, "stat -c %s "); //stat is used to obtain size of the file
   strncat(command, output_name, OUTPUT_NAME_SIZE);
   system(command);
 
@@ -134,7 +145,7 @@ int main(int argc, char *argv[]) {
    */
 
 error:
-  free(palette);
+  if(palette) free(palette);
   printf("Usage: %s output_name height width hex_color\n", argv[0]);
   return 1;
 
@@ -143,6 +154,7 @@ error_px:
 error_img:
   free(img);
 error_mem:
+  if(palette) free(palette);
   printf("Couldn't allocate memory\n");
   return 1;
 }

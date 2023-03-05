@@ -1,5 +1,6 @@
 CC = gcc
-override CFLAGS += -g -w -O0 -fsanitize=address,undefined
+#override CFLAGS += -g -w -O0 -fsanitize=address,undefined
+override CFLAGS += -g -w -O3
 
 all: libpngparser solid checkerboard filter circle epfl rect resize tests
 
