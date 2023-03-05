@@ -14,6 +14,9 @@ struct pixel *allocate_palette() {
 int main(int argc, char *argv[]) {
   struct image *img = NULL;
   struct pixel *palette = allocate_palette();
+  if (!palette) {
+    goto error_mem;
+  }
 
   /*
    * goto statements should be used only in two cases:
