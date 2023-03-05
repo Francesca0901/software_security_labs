@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
     printf("Usage: %s input_image output_image top_left_x top_left_y size "
            "hex_color\n",
            argv[0]);
+    return 1; //bug_0
   }
 
   /* Rename arguments for easier reference */
