@@ -13,7 +13,7 @@ in original code, the width of produced EPFL is set to 15 column because of the 
 full EPFL logo
 ### observed
 partial EPFL logo
-![[pictures/solid_epfl_before.png]]
+![](pictures/solid_epfl_before.png)
 
 ## Steps to Reproduce
 Assume we have a solid.png with size 100 * 100. We want to draw a EPFL logo with size 3.
@@ -40,4 +40,4 @@ Multiply logo_width by size, to allow enough width length:
 ```
 
 ### current output
-![[pictures/solid_epfl_after.png]]
+![](pictures/solid_epfl_after.png)

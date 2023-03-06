@@ -13,7 +13,7 @@ The original code forgot to do `return 1` when user doesn't input 7 arguments. S
 no segmentation fault
 ### observed
 exist segmentation fault
-![[pictures/segmentfault.png]]
+![](pictures/segmentfault.png)
 
 ## Steps to Reproduce
 ### command
@@ -33,4 +33,4 @@ if (argc != 7) {
 ```
 
 ### Current Output
-![[pictures/no_segfault.png]]
+![](pictures/no_segfault.png)
