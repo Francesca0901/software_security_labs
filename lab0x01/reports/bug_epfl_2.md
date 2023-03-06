@@ -3,7 +3,7 @@
 Iteration errors
 
 ## Description
-The program doesn't exert boundary check when inserting data into array `image_data[][]`, when user input a very large size number (when `size*5 > height`, the sum of `i` and `i_logo` will exceed `height`, which means the program wanna write below the bottom of the picture.
+The program doesn't exert boundary check when inserting data into array `image_data[][]`, when user input a very large size number (when `size*5 > height`), the sum of `i` and `i_logo` will exceed `height`, which means the program wanna write below the bottom of the picture.
 
 ## Affected Lines in the original program
 `epfl.c:87`

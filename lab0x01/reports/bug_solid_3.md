@@ -23,4 +23,4 @@ Because we sanitize `';'`, the chance of being injected by multiple command is r
 
 ## current output
 Now when we try to inject the host, it won't succeed.
-![[pictures/failure of injection.png]]
+![[pictures/failure_of_injection.png]]

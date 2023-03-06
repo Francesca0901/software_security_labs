@@ -33,4 +33,4 @@ if (argc != 7) {
 ```
 
 ### Current Output
-![[pictures/no segfault.png]]
+![[pictures/no_segfault.png]]
