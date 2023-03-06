@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
       }
 
       // Iterate over the height of the logo with i_logo
-      for (int i_logo = 0; i_logo < size * logo_height && (i + i_logo) < height; i_logo++) { //then i + logo_height won't go beyond the boundary
+      for (int i_logo = 0; i_logo < size * logo_height && (i + i_logo) < height; i_logo++) { //then i + i_logo won't go beyond the boundary
         // i_logo / size is between 0 and logo_height and when shifted get us
         // the correct bit mask for the logo int.
         if (epfl[j_logo] & (16 >> i_logo / size)) {
