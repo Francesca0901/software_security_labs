@@ -22,7 +22,7 @@ exist segmentation fault
 ```
 
 ## Suggested Fix Description
-To fix this bug, put a `return statement` when the number of arguements doesn't match `7`.
+To fix this bug, put a `return statement` when the number of argument doesn't match `7`.
 ```c
 if (argc != 7) {
     printf("Usage: %s input_image output_image top_left_x top_left_y size "
