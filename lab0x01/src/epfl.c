@@ -80,8 +80,9 @@ int main(int argc, char *argv[]) {
       // Ensure that we do not go below the bottom of the picture
       if (i + size * logo_height >= height) {
         // If we do, move the logo up to the top.
-        epfl[j_logo] += logo_adj[j_logo];
-        i = logo_adj[j_logo] = 0;
+        //epfl[j_logo] += logo_adj[j_logo];
+        //i = logo_adj[j_logo] = 0;
+        i = 0;
       }
 
       // Iterate over the height of the logo with i_logo
