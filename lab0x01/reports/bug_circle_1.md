@@ -1,6 +1,6 @@
 # BUG-0
 ## Categary
-Wrong operators/variables
+Wrong operators
 
 ## Description
 We want to abtain the coordinates of y by solving the equation `(x - center_x)^2 + (y - center_y)^2 = radius^2`, to successfully draw a color on the picture, we need to set y to the value we obtained, but in this code we are using `==`, which compares two expression instead of setting value. Thus, part of the picture can't be coloured.
