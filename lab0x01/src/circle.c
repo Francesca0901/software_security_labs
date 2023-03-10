@@ -24,6 +24,10 @@ int main(int argc, char *argv[]) {
   /* Invalid radius will just be interpreted as 0 */
   int radius = atoi(argv[5]);
 
+  // if (radius < 0 || center_x < 0 || center_y < 0) {
+  //   return 1;
+  // }
+
   /* Invalid color will be interpreted as black */
   char *end_ptr;
   long hex_color = strtol(argv[6], &end_ptr, 16); //BUG-0
@@ -49,7 +53,7 @@ int main(int argc, char *argv[]) {
    *
    * A radius of 0 means a single pixel in the center
    */
-  for (int x = center_x - radius; x <= center_x + radius; x++) {
+  for (int x = center_x - radius; x <= 1LL * center_x + radius; x++) {
     if (x < 0) {
       x = 0;
       continue;
@@ -58,7 +62,7 @@ int main(int argc, char *argv[]) {
       break;
     }
     int y = round(center_y + 
-                  sqrt(1LL * radius * radius - (x - center_x) * (x - center_x)));
+                  sqrt(1LL * radius * radius - 1LL * (x - center_x) * (x - center_x)));
     if(y < 0 || y >= height) continue;
 
     image_data[y][x].red = (hex_color & 0xff0000) >> 16;
@@ -67,7 +71,7 @@ int main(int argc, char *argv[]) {
     image_data[y][x].alpha = 0xff;
 
     y = round(center_y -
-               sqrt(1LL * radius * radius - (x - center_x) * (x - center_x)));
+               sqrt(1LL * radius * radius - 1LL * (x - center_x) * (x - center_x)));
     if(y < 0 || y >= height) continue;
 
     image_data[y][x].red = (hex_color & 0xff0000) >> 16;
@@ -81,7 +85,7 @@ int main(int argc, char *argv[]) {
    *
    * In practice a more efficient rasterization algorithm is used.
    */
-  for (int y = center_y - radius; y <= center_y + radius; y++) {
+  for (int y = center_y - radius; y <= 1LL * center_y + radius; y++) {
     if (y < 0) {
       y = 0;
       continue;
@@ -91,7 +95,7 @@ int main(int argc, char *argv[]) {
     }
     if (y < 0 || y >= width) continue;
     int x = round(center_x +
-                  sqrt(1LL * radius * radius - (y - center_y) * (y - center_y)));
+                  sqrt(1LL * radius * radius -  1LL * (y - center_y) * (y - center_y)));
     if (x < 0 || x >= width) continue;
 
     image_data[y][x].red = (hex_color & 0xff0000) >> 16;
@@ -100,7 +104,7 @@ int main(int argc, char *argv[]) {
     image_data[y][x].alpha = 0xff;
 
     x = round(center_x -
-               sqrt(1LL * radius * radius - (y - center_y) * (y - center_y)));
+               sqrt(1LL * radius * radius - 1LL * (y - center_y) * (y - center_y)));
     if (x < 0 || x >= width) continue;
 
     image_data[y][x].red = (hex_color & 0xff0000) >> 16;
