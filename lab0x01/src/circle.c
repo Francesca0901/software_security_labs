@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
   // if (radius < 0 || center_x < 0 || center_y < 0) {
   //   return 1;
   // }
+  if (radius < 0) {
+    radius = 0;
+  }
 
   /* Invalid color will be interpreted as black */
   char *end_ptr;
