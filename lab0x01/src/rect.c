@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
    */
 
   char *end_ptr;
-  long hex_color = strtol(argv[8], &end_ptr, 16);
-  if (*end_ptr || strlen(argv[8]) != 6 || hex_color < 0) {
+  long hex_color = strtol(argv[7], &end_ptr, 16);
+  if (*end_ptr || strlen(argv[7]) != 6 || hex_color < 0) {
     hex_color = 0;
   }
 
