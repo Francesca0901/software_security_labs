@@ -61,25 +61,26 @@ int main(int argc, char *argv[]) {
   unsigned i = 0;
   unsigned j = 0;
   while (i < height) {
-    while (j < width) {
+    if (i >= top_left_y && i <= bottom_right_y) {
+      while (j < width) {
       // Check if the pixel is in the rectangle
-
-      if (i >= top_left_y && i <= bottom_right_y && j >= top_left_x &&
-          j <= bottom_right_x) {
+        if (j >= top_left_x && j <= bottom_right_x){
 
         /* The fancy syntax here is just masking the corresponding bits
          * If the color is RRGGBB, performing AND with 0xff0000 will isolate
          * the bytes representing red. We then shift them to the right to bring
          * them into the correct range
          */
-        image_data[i][j].red = (hex_color & 0xff0000) >> 16;
-        image_data[i][j].green = (hex_color & 0x00ff00) >> 8;
-        image_data[i][j].blue = (hex_color & 0x0000ff);
-        image_data[i][j].alpha = 0xff;
+          image_data[i][j].red = (hex_color & 0xff0000) >> 16;
+          image_data[i][j].green = (hex_color & 0x00ff00) >> 8;
+          image_data[i][j].blue = (hex_color & 0x0000ff);
+          image_data[i][j].alpha = 0xff;
+        }
+        j++;
       }
-      i++;
-      j++;
     }
+    j = 0;
+    i++;
   }
 
   store_png(output, img, NULL, 0);
