@@ -19,8 +19,8 @@ void filter_grayscale(struct image *img, void *weight_arr) {
    *
    * FIX: Initialize both variables to 0.
    */
-  for (unsigned short i; i < img->size_y; i++) {
-    for (unsigned short j; j < img->size_x; j++) {
+  for (unsigned short i = 0; i < img->size_y; i++) {
+    for (unsigned short j = 0; j < img->size_x; j++) {
       double luminosity = 0;
 
       luminosity += weights[0] * image_data[i][j].red;
@@ -105,8 +105,8 @@ void filter_blur(struct image *img, void *r) {
 
 /* We allocate and return a pixel */
 struct pixel *get_pixel() {
-  struct pixel px;
-  return &px;
+  struct pixel *px = malloc(sizeof(struct pixel)); //bug 0
+  return px;
 }
 
 /* This filter just negates every color in the image */
@@ -115,8 +115,8 @@ void filter_negative(struct image *img, void *noarg) {
       (struct pixel(*)[img->size_x])img->px;
 
   /* Iterate over all the pixels */
-  for (long i = 0; i <= img->size_y; i++) {
-    for (long j = 0; j <= img->size_x; j++) {
+  for (long i = 0; i < img->size_y; i++) {
+    for (long j = 0; j < img->size_x; j++) {
 
       struct pixel current = image_data[i][j];
       struct pixel *neg = get_pixel();
@@ -129,6 +129,7 @@ void filter_negative(struct image *img, void *noarg) {
 
       /* Write it back */
       image_data[i][j] = *neg;
+      free(neg); //bug 3
     }
   }
 }

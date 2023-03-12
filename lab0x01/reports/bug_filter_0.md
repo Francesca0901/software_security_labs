@@ -4,8 +4,7 @@ Uninitialized local variables
 
 ## Description
 
-The loop iteration counters, `i` and `j`, are not initialized and the behavior
-of the loop is thus undefined.
+The loop iteration counters, `i` and `j`, are not initialized and the behavior of the loop is thus undefined.
 
 ## Affected Lines in the original program
 In `filter.c:22` and `filter.c:23`

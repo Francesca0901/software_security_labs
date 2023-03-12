@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
   struct image *new_img = NULL;
 
   /* Check if the argument count is correct */
-  printf("%i\n", argc);
+  //printf("%i\n", argc);
   if (argc != 4) {
     goto error_usage;
   }
