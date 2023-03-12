@@ -57,6 +57,8 @@ void filter_blur(struct image *img, void *r) {
       malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   if (!new_data) {
+    free(img->px);
+    free(img);
     return;
   }
 
@@ -124,7 +126,11 @@ void filter_negative(struct image *img, void *noarg) {
 
       struct pixel current = image_data[i][j];
       struct pixel *neg = get_pixel();
-      if(!neg) return;
+      if(!neg) {
+        free(img->px);
+        free(img);
+        return;
+      }
 
       /* The negative is just the maximum minus the current value */
       neg->red = 255 - current.red;

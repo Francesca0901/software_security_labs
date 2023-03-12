@@ -1,4 +1,4 @@
-# BUG5
+# BUG-5
 ## Category
 heap overflow
 
@@ -15,5 +15,9 @@ We expected a check of success after malloc memory for neg, but there is no chec
 After allocate memory by using `get_pixel` function, we should check whether the allocation is successful or not.
 ```c
 struct pixel *neg = get_pixel();
-if(!neg) return;
+if(!neg) {
+    free(img->px);
+    free(img);
+    return;
+}
 ```
