@@ -11,10 +11,11 @@ Local persisting pointers
 ## Expected vs Observed
 Expected a pointer point to memory which can be access outside the function `get_pixel`, so the memory should be dynamic allocated.
 
-## Steps to Reproduce
-### Command
-```shell
-./filter solid_epfl.png solid_epfl_filter.png negative
-```
-
 ## Suggested Fix Description
+We can allocate the struct pixel on the **heap** using the malloc function.
+```c
+struct pixel *get_pixel() {
+  struct pixel *px = malloc(sizeof(struct pixel)); //bug 1
+  return px;
+}
+```
