@@ -1,15 +1,15 @@
-# Discription
-## bug category
+# BUG-3
+## Category
 command injection
 
-## explaination
+## Discription
 Because this code doesnot validate the input parameter `argv[1]`, use of the `system()` function can result in exploitable vulnerabilities. Because shell allows multiple command through `;`. The attacker can perform malicious actions on the machine.
 
-## reproduction
+## Steps to Reproduce
 ![command line injection](pictures/command_injection.png)
 We actually can excute arbitary command through this code.
 
-# Fix Method
+## Suggested Fix Description
 Check in the beginnig of the program that we do input a valid filename.
 ```c
   /*avoid command injection*/

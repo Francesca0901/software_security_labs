@@ -61,8 +61,8 @@ void filter_blur(struct image *img, void *r) {
   }
 
   /* We iterate over all pixels */
-  for (long i = 0; i <= img->size_y; i++) {
-    for (long j = 0; j <= img->size_x; j++) {
+  for (long i = 0; i < img->size_y; i++) {
+    for (long j = 0; j < img->size_x; j++) {
 
       unsigned long long red = 0, green = 0, blue = 0, alpha = 0;
       /* We iterate over all pixels in the square */
@@ -74,6 +74,10 @@ void filter_blur(struct image *img, void *r) {
            *
            * FIX: Limit reads only to valid memory
            */
+          if((i + y_offset) < 0 || (i + y_offset) >= img->size_y || (j + x_offset) < 0 || (j + x_offset) >= img->size_x) {
+            continue;
+          }
+
           struct pixel current = image_data[i + y_offset][j + x_offset];
 
           red += current.red;
@@ -120,6 +124,7 @@ void filter_negative(struct image *img, void *noarg) {
 
       struct pixel current = image_data[i][j];
       struct pixel *neg = get_pixel();
+      if(!neg) return;
 
       /* The negative is just the maximum minus the current value */
       neg->red = 255 - current.red;

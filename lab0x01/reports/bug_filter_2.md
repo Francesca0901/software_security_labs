@@ -6,7 +6,7 @@ Iteration errors
 Using i <= img->size_y will create an array overrun when reading image_data[i][j].
 
 ## Affected Lines in the original program
-`filter.c:118` and `filter.c:119`
+`filter.c:118` and `filter.c:119` and `filter.c:64` and `filter.c:65`
 
 ## Expected vs Observed
 Expect reasonable access to arrays.
