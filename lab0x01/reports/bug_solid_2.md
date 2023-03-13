@@ -1,4 +1,4 @@
-# # BUG-2
+# BUG-2
 ## Category
 memory leak
 

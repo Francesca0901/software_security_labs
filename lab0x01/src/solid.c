@@ -31,7 +31,6 @@ int main(int argc, char *argv[]) {
   if (argc != 5) {
     goto error;
   }
-
   
   /* Assign names to arguments for better abstraction */
   char output_name[OUTPUT_NAME_SIZE];
@@ -58,12 +57,12 @@ int main(int argc, char *argv[]) {
   /* If the user provides negative height or the height is 0 and the end_ptr
    * hasn't moved we issue an error and free palette
    */
-  if (height >= USHRT_MAX || *end_ptr)
+  if (height >= USHRT_MAX || *end_ptr || height <= 0)
     goto error;
 
   unsigned long width = strtol(width_arg, &end_ptr, 10);
 
-  if (width >= USHRT_MAX || *end_ptr) {
+  if (width >= USHRT_MAX || *end_ptr || width <= 0) {
     goto error;
   }
 
