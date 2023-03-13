@@ -110,8 +110,8 @@ int main(int argc, char *argv[]) {
         int square_top_left_y = i * square_width;
 
         /* This iterates over a square and fills it with the correct color */
-        for (int x = 0; x < square_width; x++) {
-          for (int y = 0; y < square_width; y++) {
+        for (int x = 0; x < square_width && (square_top_left_x + x) < width; x++) {
+          for (int y = 0; y < square_width && (square_top_left_y + y) < height; y++) {
             image_data[square_top_left_y + y][square_top_left_x + x].red =
                 palette[color].red;
             image_data[square_top_left_y + y][square_top_left_x + x].green =

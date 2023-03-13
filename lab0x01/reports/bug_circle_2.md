@@ -19,6 +19,3 @@ Expected to see seccessful circle, but actually see segment fault. Because `imag
 
 ## Suggested Fix Description
 Whenever finish calculation for y and x, check if it's still within boundary.
-
-
-
