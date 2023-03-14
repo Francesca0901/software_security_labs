@@ -10,6 +10,10 @@
  * to get the grayscale representation of the image
  */
 void filter_grayscale(struct image *img, void *weight_arr) {
+  if (is_size_valid(img->size_x, img->size_y)) {
+    printf("size should not be 0");
+    return;
+  }
   struct pixel(*image_data)[img->size_x] =
       (struct pixel(*)[img->size_x])img->px;
   double *weights = (double *)weight_arr;
@@ -46,6 +50,10 @@ void filter_grayscale(struct image *img, void *weight_arr) {
  *
  */
 void filter_blur(struct image *img, void *r) {
+  if (is_size_valid(img->size_x, img->size_y)) {
+    printf("size should not be 0");
+    return;
+  }
   struct pixel(*image_data)[img->size_x] =
       (struct pixel(*)[img->size_x])img->px;
   int radius = *((int *)r);
@@ -117,6 +125,10 @@ struct pixel *get_pixel() {
 
 /* This filter just negates every color in the image */
 void filter_negative(struct image *img, void *noarg) {
+  if (is_size_valid(img->size_x, img->size_y)) {
+    printf("size should not be 0");
+    return;
+  }
   struct pixel(*image_data)[img->size_x] =
       (struct pixel(*)[img->size_x])img->px;
 
@@ -148,6 +160,10 @@ void filter_negative(struct image *img, void *noarg) {
 /* Set the transparency of the picture to the value (0-255) passed as argument
  */
 void filter_specific_color(struct image *img, void *specific_color) {
+  if (is_size_valid(img->size_x, img->size_y)) {
+    printf("size should not be 0");
+    return;
+  }
   struct pixel(*image_data)[img->size_x] =
       (struct pixel(*)[img->size_x])img->px;
   long hex_color = *((long *)specific_color);
@@ -185,6 +201,10 @@ void filter_specific_color(struct image *img, void *specific_color) {
  * For the pixel, the net gradient = sqrt(g_red^2 + g_green^2 + g_blue_2)
  */
 void filter_edge_detect(struct image *img, void *threshold_arg) {
+  if (is_size_valid(img->size_x, img->size_y)) {
+    printf("size should not be 0");
+    return;
+  }
   struct pixel(*image_data)[img->size_x] =
       (struct pixel(*)[img->size_x])img->px;
   uint8_t threshold = *(uint8_t *)threshold_arg;

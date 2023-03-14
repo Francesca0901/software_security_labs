@@ -69,4 +69,5 @@ int load_png(const char *filename, struct image **img);
 int store_png(const char *filename, struct image *img, struct pixel *palette,
               uint8_t palette_length);
 
+int is_size_valid (uint16_t size_x, uint16_t size_y);
 #endif

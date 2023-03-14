@@ -6,6 +6,8 @@
 
 #define PNG_OUTPUT_CHUNK_SIZE (1 << 14)
 
+#define PNG_DONT_ALLOW_SIZE 0
+
 #define PNG_IHDR_COLOR_GRAYSCALE 0
 #define PNG_IHDR_COLOR_RGB 2
 #define PNG_IHDR_COLOR_PALETTE 3
@@ -78,6 +80,12 @@ struct __attribute__((__packed__)) plte_entry {
 struct __attribute__((__packed__)) png_header_filesig {
   uint8_t filesig[8];
 };
+
+/* Don't allow 0 size*/
+int is_size_valid(uint16_t size_x, uint16_t size_y){
+  if (size_x * size_y == PNG_DONT_ALLOW_SIZE || size_x < 0 || size_y < 0)
+    return 1;
+}
 
 /* The current implementation supports only some of the PNG color types
  */
