@@ -214,7 +214,49 @@ END_TEST
  * The alpha channel needs to be intact in both cases */
 START_TEST(negative_functionality) {
   /* TODO: Implement */
-  ck_assert_uint_eq(0, 1); // remove line
+  //ck_assert_uint_eq(0, 1); // remove line
+  srand(time(NULL) ^ getpid());
+
+  /* Generate random png image */
+  struct image img = generate_rand_img();
+  uint8_t alpha = 128;
+  uint16_t sz_x = img.size_x, sz_y = img.size_y;
+  for (long i = 0; i < sz_y; i++)
+    for (long j = 0; j < sz_x; j++) {
+      img.px[i * sz_x + j].red = 0x00;
+      img.px[i * sz_x + j].green = 0x00;
+      img.px[i * sz_x + j].blue = 0x00;
+      img.px[i * sz_x + j].alpha = alpha;
+    }
+
+  filter_negative(&img, NULL);
+
+  ck_assert_uint_eq(img.size_x, sz_x);
+  ck_assert_uint_eq(img.size_y, sz_y);
+  ck_assert_ptr_ne(img.px, NULL);
+  for (long i = 0; i < sz_y; i++)
+    for (long j = 0; j < sz_x; j++) {
+      long idx = i * sz_x + j;
+      ck_assert_uint_eq(img.px[idx].red, 0xff);
+      ck_assert_uint_eq(img.px[idx].green, 0xff);
+      ck_assert_uint_eq(img.px[idx].blue, 0xff);
+      ck_assert_uint_eq(img.px[idx].alpha, alpha);
+    }
+
+  filter_negative(&img, NULL);
+  ck_assert_uint_eq(img.size_x, sz_x);
+  ck_assert_uint_eq(img.size_y, sz_y);
+  ck_assert_ptr_ne(img.px, NULL);
+  for (long i = 0; i < sz_y; i++)
+    for (long j = 0; j < sz_x; j++) {
+      long idx = i * sz_x + j;
+      ck_assert_uint_eq(img.px[idx].red, 0x00);
+      ck_assert_uint_eq(img.px[idx].green, 0x00);
+      ck_assert_uint_eq(img.px[idx].blue, 0x00);
+      ck_assert_uint_eq(img.px[idx].alpha, alpha);
+    }
+
+  free(img.px);
 }
 END_TEST
 
@@ -293,6 +335,7 @@ int main() {
 
   /* Tests for functionality */
   tcase_add_test(tc2, grayscale_functionality);
+
                            /* TODO: Add looped test case for grayscale_examples */
   tcase_add_loop_test(tc2, grayscale_examples, 0,
                       sizeof(grayscale_sources) / sizeof(grayscale_sources[0]));
