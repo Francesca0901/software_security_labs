@@ -1,4 +1,5 @@
 #include "filter.h"
+#include "pngparser.h"
 #include <assert.h>
 #include <check.h>
 #include <float.h>
@@ -285,8 +286,68 @@ START_TEST(blur_functionality) {
       {black, black, black}, {black, white, black}, {black, black, black}};
   struct image img = {3, 3, &px};
 
+  int radius[4] = {0, 1, 2, 3};
+  
   /* TODO: Implement */
-  ck_assert_uint_eq(0, 1); // remove line
+  //ck_assert_uint_eq(0, 1); // remove line
+  struct image img_dup = duplicate_img(img); 
+  filter_blur(&img, &radius[0]);
+  ck_assert_uint_eq(img.size_x, 3);
+  ck_assert_uint_eq(img.size_y, 3);
+  ck_assert_ptr_ne(img.px, NULL);
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++) {
+      int idx = i * 3 + j;
+      ck_assert_uint_eq(img.px[idx].red, img_dup.px[idx].red);
+      ck_assert_uint_eq(img.px[idx].green, img_dup.px[idx].green);
+      ck_assert_uint_eq(img.px[idx].blue, img_dup.px[idx].blue);
+      ck_assert_uint_eq(img.px[idx].alpha, img_dup.px[idx].alpha);
+    }
+
+  struct pixel dark0 = {28, 28, 28, 255};
+  struct pixel dark1 = {42, 42, 42, 255};
+  struct pixel dark2 = {63, 63, 63, 255};
+  
+  img = img_dup;
+  filter_blur(&img, &radius[1]);
+  struct pixel out_px1[3][3] = {
+    {dark2, dark1, dark2}, {dark1, dark0, dark1}, {dark2, dark1, dark2}};
+  struct image out_img1 = {3, 3, &out_px1};
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++) {
+      int idx = i * 3 + j;
+      ck_assert_uint_eq(img.px[idx].red, out_img1.px[idx].red);
+      ck_assert_uint_eq(img.px[idx].green, out_img1.px[idx].green);
+      ck_assert_uint_eq(img.px[idx].blue, out_img1.px[idx].blue);
+      ck_assert_uint_eq(img.px[idx].alpha, out_img1.px[idx].alpha);
+    }
+
+  img = img_dup;
+  struct pixel out_px23[3][3] = {
+    {dark0, dark0, dark0}, {dark0, dark0, dark0}, {dark0, dark0, dark0}};
+  struct image out_img23 = {3, 3, &out_px23};
+  filter_blur(&img, &radius[2]);
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++) {
+      int idx = i * 3 + j;
+      ck_assert_uint_eq(img.px[idx].red, out_img23.px[idx].red);
+      ck_assert_uint_eq(img.px[idx].green, out_img23.px[idx].green);
+      ck_assert_uint_eq(img.px[idx].blue, out_img23.px[idx].blue);
+      ck_assert_uint_eq(img.px[idx].alpha, out_img23.px[idx].alpha);
+    }
+
+  img = img_dup;
+  filter_blur(&img, &radius[3]);
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++) {
+      int idx = i * 3 + j;
+      ck_assert_uint_eq(img.px[idx].red, out_img23.px[idx].red);
+      ck_assert_uint_eq(img.px[idx].green, out_img23.px[idx].green);
+      ck_assert_uint_eq(img.px[idx].blue, out_img23.px[idx].blue);
+      ck_assert_uint_eq(img.px[idx].alpha, out_img23.px[idx].alpha);
+    }
+
+  free(img_dup.px);
 }
 END_TEST
 
@@ -327,7 +388,7 @@ int main() {
 
   /* Tests for limits*/
   // tcase_add_test(tc1, grayscale_double_limit);
-  tcase_add_test(tc1, negative_zero_size);
+  // tcase_add_test(tc1, negative_zero_size);
 
   // srand(time(NULL) ^ getpid());
   // blur_radius_img = generate_rand_img();
@@ -349,7 +410,7 @@ int main() {
   // tcase_add_loop_test(tc2, grayscale_examples, 0,
   //                     sizeof(grayscale_sources) / sizeof(grayscale_sources[0]));
   // tcase_add_test(tc2, negative_functionality);
-  // tcase_add_test(tc2, blur_functionality);
+  tcase_add_test(tc2, blur_functionality);
   // tcase_add_test(tc2, specific_color_functionality);
   // tcase_add_loop_test(tc2, edge_example_image, 0,
   //                     sizeof(edge_deserts) / sizeof(edge_deserts[0]));

@@ -16,8 +16,6 @@ After allocate memory by using `get_pixel` function, we should check whether the
 ```c
 struct pixel *neg = get_pixel();
 if(!neg) {
-    free(img->px);
-    free(img);
     return;
 }
 ```

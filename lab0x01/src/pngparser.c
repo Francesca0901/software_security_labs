@@ -85,6 +85,7 @@ struct __attribute__((__packed__)) png_header_filesig {
 int is_size_valid(uint16_t size_x, uint16_t size_y){
   if (size_x * size_y == PNG_DONT_ALLOW_SIZE || size_x < 0 || size_y < 0)
     return 1;
+  return 0;
 }
 
 /* The current implementation supports only some of the PNG color types

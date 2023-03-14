@@ -65,8 +65,6 @@ void filter_blur(struct image *img, void *r) {
       malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   if (!new_data) {
-    free(img->px);
-    free(img);
     return;
   }
 
@@ -75,6 +73,7 @@ void filter_blur(struct image *img, void *r) {
     for (long j = 0; j < img->size_x; j++) {
 
       unsigned long long red = 0, green = 0, blue = 0, alpha = 0;
+      unsigned long long int num_pixels = 0;
       /* We iterate over all pixels in the square */
       for (long y_offset = -radius; y_offset <= radius; y_offset++) {
         for (long x_offset = -radius; x_offset <= radius; x_offset++) {
@@ -94,10 +93,11 @@ void filter_blur(struct image *img, void *r) {
           blue += current.blue;
           green += current.green;
           alpha += current.alpha;
+          num_pixels += 1;
         }
       }
 
-      int num_pixels = (2 * radius + 1) * (2 * radius + 1);
+      //int num_pixels = (2 * radius + 1) * (2 * radius + 1);
       /* Calculate the average */
       red /= num_pixels;
       green /= num_pixels;
@@ -112,7 +112,7 @@ void filter_blur(struct image *img, void *r) {
     }
   }
 
-  free(img->px);
+  //free(img->px);
   img->px = (struct pixel *)new_data;
   return;
 }
@@ -139,8 +139,6 @@ void filter_negative(struct image *img, void *noarg) {
       struct pixel current = image_data[i][j];
       struct pixel *neg = get_pixel();
       if(!neg) {
-        free(img->px);
-        free(img);
         return;
       }
 
