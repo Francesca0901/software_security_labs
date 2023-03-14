@@ -406,7 +406,7 @@ int main() {
   // /* Tests for functionality */
   // tcase_add_test(tc2, grayscale_functionality);
 
-  //                          /* TODO: Add looped test case for grayscale_examples */
+                           /* TODO: Add looped test case for grayscale_examples */
   // tcase_add_loop_test(tc2, grayscale_examples, 0,
   //                     sizeof(grayscale_sources) / sizeof(grayscale_sources[0]));
   // tcase_add_test(tc2, negative_functionality);
