@@ -366,7 +366,7 @@ START_TEST(blur_radius_edge_cases) {
 END_TEST
 
 /* Verify for a random image that the specific_color filter works properly */
-START_TEST(specific_color_functionality) {
+START_TEST(specific_color_functionality) {  //fail and pass: 1:1
   /* TODO: Implement */
   //ck_assert_uint_eq(0, 1); // remove line
   srand(time(NULL) ^ getpid());
@@ -375,9 +375,10 @@ START_TEST(specific_color_functionality) {
   struct image img = generate_rand_img();
   /* Generate random color */
   uint8_t color[2][4] = {{0}};
+  srand(time(NULL) ^ getpid());
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 3; j++) {
-      color[i][j] = rand() % 256; // Generate a random value between 0 and 255
+      color[i][j] = rand(); // Generate a random value between 0 and 255
     }
   }
 
@@ -405,14 +406,17 @@ START_TEST(specific_color_functionality) {
     }
   }
 
-  free(img.px);    
+  //free(img.px);    
 }
 END_TEST
 
 /* Check if the function crashes when we pass nullptr as the argument */
 START_TEST(specific_color_edge_case) {
   /* TODO: Implement */
-  ck_assert_uint_eq(0, 1); // remove line
+  //ck_assert_uint_eq(0, 1); // remove line
+  struct image* img = NULL;
+  uint32_t input_color = 0xffffff;
+  filter_specific_color(img, &input_color);
 }
 END_TEST
 
@@ -427,36 +431,36 @@ int main() {
   /* Add tests for input limits, and general functionality tests */
 
   /* Tests for limits*/
-  // tcase_add_test(tc1, grayscale_double_limit);
-  // tcase_add_test(tc1, negative_zero_size);
+  tcase_add_test(tc1, grayscale_double_limit);
+  tcase_add_test(tc1, negative_zero_size);
 
-  // srand(time(NULL) ^ getpid());
-  // blur_radius_img = generate_rand_img();
-  // int tmp[20] = { INT_MIN, INT_MAX, 0, blur_radius_img.size_x, blur_radius_img.size_y, 
-  //                 INT_MIN / 2, INT_MAX / 2 , 0 / 2, blur_radius_img.size_x / 2, blur_radius_img.size_y / 2,
-  //                 INT_MIN - 1, INT_MAX - 1 , -1, blur_radius_img.size_x - 1, blur_radius_img.size_y - 1,
-  //                 INT_MIN + 1, INT_MAX + 1 , 1, blur_radius_img.size_x + 1, blur_radius_img.size_y + 1
-  // };                         /* TODO: Fill in required radii */
-  // memcpy(blur_radii, tmp, sizeof(blur_radii));
-  // tcase_add_loop_test(tc1, blur_radius_edge_cases, 0,
-  //                     sizeof(blur_radii) / sizeof(blur_radii[0]));
-  // free(blur_radius_img.px);
+  srand(time(NULL) ^ getpid());
+  blur_radius_img = generate_rand_img();
+  int tmp[20] = { INT_MIN, INT_MAX, 0, blur_radius_img.size_x, blur_radius_img.size_y, 
+                  INT_MIN / 2, INT_MAX / 2 , 0 / 2, blur_radius_img.size_x / 2, blur_radius_img.size_y / 2,
+                  INT_MIN - 1, INT_MAX - 1 , -1, blur_radius_img.size_x - 1, blur_radius_img.size_y - 1,
+                  INT_MIN + 1, INT_MAX + 1 , 1, blur_radius_img.size_x + 1, blur_radius_img.size_y + 1
+  };                         /* TODO: Fill in required radii */
+  memcpy(blur_radii, tmp, sizeof(blur_radii));
+  tcase_add_loop_test(tc1, blur_radius_edge_cases, 0,
+                      sizeof(blur_radii) / sizeof(blur_radii[0]));
+  free(blur_radius_img.px);
 
-  // tcase_add_test(tc1, edge_threshold);
-  // tcase_add_test(tc1, specific_color_edge_case);
+  tcase_add_test(tc1, edge_threshold);
+  tcase_add_test(tc1, specific_color_edge_case);
 
-  // /* Tests for functionality */
-  // tcase_add_test(tc2, grayscale_functionality);
+  /* Tests for functionality */
+  tcase_add_test(tc2, grayscale_functionality);
 
-  //                          /* TODO: Add looped test case for grayscale_examples */
-  // tcase_add_loop_test(tc2, grayscale_examples, 0,
-  //                     sizeof(grayscale_sources) / sizeof(grayscale_sources[0]));
-  // tcase_add_test(tc2, negative_functionality);
-  // tcase_add_test(tc2, blur_functionality);
+                           /* TODO: Add looped test case for grayscale_examples */
+  tcase_add_loop_test(tc2, grayscale_examples, 0,
+                      sizeof(grayscale_sources) / sizeof(grayscale_sources[0]));
+  tcase_add_test(tc2, negative_functionality);
+  tcase_add_test(tc2, blur_functionality);
   tcase_add_test(tc2, specific_color_functionality);
-  // tcase_add_loop_test(tc2, edge_example_image, 0,
-  //                     sizeof(edge_deserts) / sizeof(edge_deserts[0]));
-  // tcase_add_test(tc2, edge_checkerboard);
+  tcase_add_loop_test(tc2, edge_example_image, 0,
+                      sizeof(edge_deserts) / sizeof(edge_deserts[0]));
+  tcase_add_test(tc2, edge_checkerboard);
 
   SRunner *sr = srunner_create(s);
   srunner_run_all(sr, CK_VERBOSE);
