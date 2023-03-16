@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 
   img->px = malloc(sizeof(struct pixel) * n_pixels);
   if (!img->px) {
-    //free(img);  ////bug-1 don't free!!!!!!
+    //free(img);  //bug-1 don't free!!!!!!
     goto error_img;
   }
 
@@ -101,6 +101,8 @@ int main(int argc, char *argv[]) {
     /* We segment the image into squares and fill each square with its color */
     for (int i = 0; i < (height + square_width - 1) / square_width; i++) {
       for (int j = 0; j < (width + square_width - 1) / square_width; j++) {
+
+        
 
         /* Calculate the color based on the square index */
         int color = (i + j) % 2;

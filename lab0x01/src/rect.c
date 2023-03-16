@@ -83,7 +83,15 @@ int main(int argc, char *argv[]) {
     i++;
   }
 
-  store_png(output, img, NULL, 0);  /// check!!!!!!
+  //store_png(output, img, NULL, 0);  /// check!!!!!!
+  if (store_png(output, img, NULL, 0)) {
+    printf("Usage: %s input_image output_image top_left_x top_left_y "
+           "bottom_right_x bottom_right_y hex_color\n",
+           argv[0]);
+    free(img->px);
+    free(img);
+    return 1;
+  }
   free(img->px);
   free(img);
   return 0;
