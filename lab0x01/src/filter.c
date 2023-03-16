@@ -178,6 +178,25 @@ void filter_specific_color(struct image *img, void *specific_color) {
   }
 }
 
+
+struct image duplicate_img_now(struct image img) {
+  struct image img_dup;
+
+  img_dup.size_x = img.size_x;
+  img_dup.size_y = img.size_y;
+  img_dup.px = malloc(img.size_x * img.size_y * sizeof(struct pixel));
+  // if (img_dup.px == NULL)
+  //   assert(0 && "Rerun test, malloc failed");
+  for (long i = 0; i < img.size_y * img.size_x; i++) {
+    img_dup.px[i].red = img.px[i].red;
+    img_dup.px[i].green = img.px[i].green;
+    img_dup.px[i].blue = img.px[i].blue;
+    img_dup.px[i].alpha = img.px[i].alpha;
+  }
+
+  return img_dup;
+}
+
 /* This filter is used to detect edges by computing the gradient for each
  * pixel and comparing it to the threshold argument. When the gradient exceeds
  * the threshold, the pixel is replaced by black, otherwise white.
@@ -210,6 +229,7 @@ void filter_edge_detect(struct image *img, void *threshold_arg) {
   double weights_y[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
 
   /* Iterate over all pixels */
+  struct image dup_img = duplicate_img_now(*img);
   for (long i = 0; i < img->size_y; i++) {
     for (long j = 0; j < img->size_x; j++) {
       /* TODO: Implement */
@@ -218,27 +238,31 @@ void filter_edge_detect(struct image *img, void *threshold_arg) {
       double grad_y_colors[3] = {0};      
       double net_grad[3] = {0};
       struct pixel pixels_arround[9];
+
+      long current_i = 0;
+      long current_j = 0;
       
-      for (int m = 0; m < 3; m++){
-        for (int n = 0; n < 3; n++){
-          long current_i = i + m - 1;
-          long current_j = j + n - 1;
-          if (current_i < 0) current_i = 0;
-          if (current_j < 0) current_j = 0;
-          if (current_i >= img->size_y) current_i = img->size_y - 1;
-          if (current_j >= img->size_x) current_j = img->size_x - 1;
-          pixels_arround[m * 3 + n] = img->px[current_i * img->size_y + current_j];
+      for (int m = -1; m < 2; m++){
+        for (int n = -1; n < 2; n++){
+          if ((i + m) < 0) current_i = 0; else current_i = i + m;
+          if ((j + n) < 0) current_j = 0; else current_j = j + n;
+          if (current_i >= dup_img.size_y) current_i = dup_img.size_y - 1;
+          if (current_j >= dup_img.size_x) current_j = dup_img.size_x - 1;
+          // printf("(m + 1) * 3 + n + 1: %d\n", (m + 1) * 3 + n + 1);
+          // printf("current_i: %ld\n", current_i);
+          // printf("current_j: %ld\n", current_j);
+          pixels_arround[(m + 1) * 3 + n + 1] = dup_img.px[current_i * dup_img.size_x + current_j];
         }
       }
       // calculate gradient_x
-      grad_x_colors[0] = -1 * pixels_arround[0].red + 1 * pixels_arround[6].red - 2 *  pixels_arround[1].red + 2 * pixels_arround[7].red - 1 * pixels_arround[2].red + 1 * pixels_arround[8].red;
-      grad_x_colors[1] = -1 * pixels_arround[0].blue + 1 * pixels_arround[6].blue - 2 *  pixels_arround[1].blue + 2 * pixels_arround[7].blue - 1 * pixels_arround[2].blue + 1 * pixels_arround[8].blue;
-      grad_x_colors[2] = -1 * pixels_arround[0].green + 1 * pixels_arround[6].green - 2 *  pixels_arround[1].green + 2 * pixels_arround[7].green - 1 * pixels_arround[2].green + 1 * pixels_arround[8].green;
+      grad_x_colors[0] = -1 * (double)pixels_arround[0].red + 1 * (double)pixels_arround[6].red - 2 *  (double)pixels_arround[1].red + 2 * (double)pixels_arround[7].red - 1 * (double)pixels_arround[2].red + 1 * (double)pixels_arround[8].red;
+      grad_x_colors[1] = -1 * (double)pixels_arround[0].blue + 1 * (double)pixels_arround[6].blue - 2 *  (double)pixels_arround[1].blue + 2 * (double)pixels_arround[7].blue - 1 * (double)pixels_arround[2].blue + 1 * (double)pixels_arround[8].blue;
+      grad_x_colors[2] = -1 * (double)pixels_arround[0].green + 1 * (double)pixels_arround[6].green - 2 *  (double)pixels_arround[1].green + 2 * (double)pixels_arround[7].green - 1 * (double)pixels_arround[2].green + 1 * (double)pixels_arround[8].green;
       
       // calculate gradient_y
-      grad_y_colors[0] = 1 * pixels_arround[0].red + 2 * pixels_arround[3].red + 1 *  pixels_arround[6].red - 1 * pixels_arround[2].red - 2 * pixels_arround[5].red - 1 * pixels_arround[8].red;
-      grad_y_colors[1] = 1 * pixels_arround[0].blue + 2 * pixels_arround[3].blue + 1 *  pixels_arround[6].blue - 1 * pixels_arround[2].blue - 2 * pixels_arround[5].blue - 1 * pixels_arround[8].blue;
-      grad_y_colors[2] = 1 * pixels_arround[0].green + 2 * pixels_arround[3].green + 1 *  pixels_arround[6].green - 1 * pixels_arround[2].green - 2 * pixels_arround[5].green - 1 * pixels_arround[8].green;
+      grad_y_colors[0] = 1 * (double)pixels_arround[0].red + 2 * (double)pixels_arround[3].red + 1 *  (double)pixels_arround[6].red - 1 * (double)pixels_arround[2].red - 2 * (double)pixels_arround[5].red - 1 * (double)pixels_arround[8].red;
+      grad_y_colors[1] = 1 * (double)pixels_arround[0].blue + 2 * (double)pixels_arround[3].blue + 1 *  (double)pixels_arround[6].blue - 1 * (double)pixels_arround[2].blue - 2 * (double)pixels_arround[5].blue - 1 * (double)pixels_arround[8].blue;
+      grad_y_colors[2] = 1 * (double)pixels_arround[0].green + 2 * (double)pixels_arround[3].green + 1 *  (double)pixels_arround[6].green - 1 * (double)pixels_arround[2].green - 2 * (double)pixels_arround[5].green - 1 * (double)pixels_arround[8].green;
       
       // calculate gradient_net
       net_grad[0] = sqrt(grad_x_colors[0] * grad_x_colors[0] + grad_y_colors[0] * grad_y_colors[0]);
@@ -249,9 +273,13 @@ void filter_edge_detect(struct image *img, void *threshold_arg) {
       double pixel_grad = sqrt(net_grad[0] * net_grad[0] + net_grad[1] * net_grad[1] + net_grad[2] * net_grad[2]);
 
       if (pixel_grad > (double) threshold) {
-        img->px = 0x000000;
+        image_data[i][j].red = 0x00;
+        image_data[i][j].blue = 0x00;
+        image_data[i][j].green = 0x00;
       } else {
-        img->px = 0xffffff;
+        image_data[i][j].red = 0xff;
+        image_data[i][j].blue = 0xff;
+        image_data[i][j].green = 0xff;
       }
     }
   }
@@ -299,7 +327,7 @@ int __attribute__((weak)) main(int argc, char *argv[]) {
 
   /* Error when loading a png image */
   if (load_png(input, &img)) {
-    printf("%s", input);
+    //printf("%s", input);  
     printf(" PNG file cannot be loaded\n");
     exit(1);
   }
