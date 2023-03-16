@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 
   img->px = malloc(sizeof(struct pixel) * n_pixels);
   if (!img->px) {
-    free(img);
+    //free(img);  ////bug-1 don't free!!!!!!
     goto error_img;
   }
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
         int color = (i + j) % 2;
 
         /* Fill a square */
-        int square_top_left_x = j * square_width;
+        int square_top_left_x = j * square_width; /////integer
         int square_top_left_y = i * square_width;
 
         /* This iterates over a square and fills it with the correct color */

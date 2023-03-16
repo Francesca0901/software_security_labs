@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     i++;
   }
 
-  store_png(output, img, NULL, 0);
+  store_png(output, img, NULL, 0);  /// check!!!!!!
   free(img->px);
   free(img);
   return 0;

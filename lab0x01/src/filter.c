@@ -213,7 +213,46 @@ void filter_edge_detect(struct image *img, void *threshold_arg) {
   for (long i = 0; i < img->size_y; i++) {
     for (long j = 0; j < img->size_x; j++) {
       /* TODO: Implement */
-      abort(); // remove line
+      //abort(); // remove line
+      double grad_x_colors[3] = {0};
+      double grad_y_colors[3] = {0};      
+      double net_grad[3] = {0};
+      struct pixel pixels_arround[9];
+      
+      for (int m = 0; m < 3; m++){
+        for (int n = 0; n < 3; n++){
+          long current_i = i + m - 1;
+          long current_j = j + n - 1;
+          if (current_i < 0) current_i = 0;
+          if (current_j < 0) current_j = 0;
+          if (current_i >= img->size_y) current_i = img->size_y - 1;
+          if (current_j >= img->size_x) current_j = img->size_x - 1;
+          pixels_arround[m * 3 + n] = img->px[current_i * img->size_y + current_j];
+        }
+      }
+      // calculate gradient_x
+      grad_x_colors[0] = -1 * pixels_arround[0].red + 1 * pixels_arround[6].red - 2 *  pixels_arround[1].red + 2 * pixels_arround[7].red - 1 * pixels_arround[2].red + 1 * pixels_arround[8].red;
+      grad_x_colors[1] = -1 * pixels_arround[0].blue + 1 * pixels_arround[6].blue - 2 *  pixels_arround[1].blue + 2 * pixels_arround[7].blue - 1 * pixels_arround[2].blue + 1 * pixels_arround[8].blue;
+      grad_x_colors[2] = -1 * pixels_arround[0].green + 1 * pixels_arround[6].green - 2 *  pixels_arround[1].green + 2 * pixels_arround[7].green - 1 * pixels_arround[2].green + 1 * pixels_arround[8].green;
+      
+      // calculate gradient_y
+      grad_y_colors[0] = 1 * pixels_arround[0].red + 2 * pixels_arround[3].red + 1 *  pixels_arround[6].red - 1 * pixels_arround[2].red - 2 * pixels_arround[5].red - 1 * pixels_arround[8].red;
+      grad_y_colors[1] = 1 * pixels_arround[0].blue + 2 * pixels_arround[3].blue + 1 *  pixels_arround[6].blue - 1 * pixels_arround[2].blue - 2 * pixels_arround[5].blue - 1 * pixels_arround[8].blue;
+      grad_y_colors[2] = 1 * pixels_arround[0].green + 2 * pixels_arround[3].green + 1 *  pixels_arround[6].green - 1 * pixels_arround[2].green - 2 * pixels_arround[5].green - 1 * pixels_arround[8].green;
+      
+      // calculate gradient_net
+      net_grad[0] = sqrt(grad_x_colors[0] * grad_x_colors[0] + grad_y_colors[0] * grad_y_colors[0]);
+      net_grad[1] = sqrt(grad_x_colors[1] * grad_x_colors[1] + grad_y_colors[1] * grad_y_colors[1]);
+      net_grad[2] = sqrt(grad_x_colors[2] * grad_x_colors[2] + grad_y_colors[2] * grad_y_colors[2]);
+
+      // calculate pixel gradient
+      double pixel_grad = sqrt(net_grad[0] * net_grad[0] + net_grad[1] * net_grad[1] + net_grad[2] * net_grad[2]);
+
+      if (pixel_grad > (double) threshold) {
+        img->px = 0x000000;
+      } else {
+        img->px = 0xffffff;
+      }
     }
   }
 }
