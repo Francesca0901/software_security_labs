@@ -116,7 +116,12 @@ int main(int argc, char *argv[]) {
     image_data[y][x].alpha = 0xff;
   }
 
-  store_png(output, img, NULL, 0);
+  //store_png(output, img, NULL, 0);
+  if (store_png(output, img, NULL, 0)) {
+    free(img->px);
+    free(img);
+    return 1;
+  }
   free(img->px);
   free(img);
   return 0;

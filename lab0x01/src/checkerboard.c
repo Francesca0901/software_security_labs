@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   long square_width = strtol(square_width_arg, &end_ptr, 10);
 
-  if (square_width <= 0 || *end_ptr) {
+  if (square_width <= 0 || square_width >= USHRT_MAX || *end_ptr) {
     goto error;
   }
 
@@ -101,8 +101,6 @@ int main(int argc, char *argv[]) {
     /* We segment the image into squares and fill each square with its color */
     for (int i = 0; i < (height + square_width - 1) / square_width; i++) {
       for (int j = 0; j < (width + square_width - 1) / square_width; j++) {
-
-        
 
         /* Calculate the color based on the square index */
         int color = (i + j) % 2;
