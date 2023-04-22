@@ -224,15 +224,16 @@ int is_png_filesig_valid(struct png_header_filesig *filesig) {
  * Do not modify it in the libFuzzer lab.
  */
 int is_png_chunk_valid(struct png_chunk *chunk) {
-  uint32_t crc_value =
-      crc((unsigned char *)&chunk->chunk_type, sizeof(int32_t));
+  // uint32_t crc_value =
+  //     crc((unsigned char *)&chunk->chunk_type, sizeof(int32_t));
 
-  if (chunk->length) {
-    crc_value = update_crc(crc_value ^ 0xffffffffL,
-                           (unsigned char *)chunk->chunk_data, chunk->length) ^
-                0xffffffffL;
-  }
-  return chunk->crc == crc_value;
+  // if (chunk->length) {
+  //   crc_value = update_crc(crc_value ^ 0xffffffffL,
+  //                          (unsigned char *)chunk->chunk_data, chunk->length) ^
+  //               0xffffffffL;
+  // }
+  // return chunk->crc == crc_value;
+  return 1;
 }
 
 /* Fill the chunk with the data from the file.*/

@@ -37,7 +37,7 @@ AFL++'s measure of success for an input is new code coverage. A bug cannot be di
 unless it executes the code where that bug resides. By exploring previously unexecuted code, the
 fuzzer has a higher chance of encountering previously unseen bugs.
 
-AFL++ uses crashes as indicators for bugs. If the program crashes, AFL++ knows that it has encountered a
+AFL++ **uses crashes as indicators for bugs**. If the program crashes, AFL++ knows that it has encountered a
 bug. However, one bug can cause crashes for many different inputs. AFL++ attempts to *deduplicate*
 crashes based on code coverage; if a crashing input exercises unseen code, it is considered unique.
 This deduplication is imprecise, and the number of reported unique crashes is usually inflated,
@@ -74,18 +74,18 @@ The `size` program takes an image file name as input and outputs the dimensions 
   1. `make source-only NO_NYX=1`
   1. `sudo make install`
 1. Go to the `afl++` directory provided with the lab 0x03 source code
-1. Code changes are sometimes needed when fuzzing
+1. Code changes are sometimes needed when fuzzing  --> 111111
   1. Find the function `is_png_chunk_valid` in pngparser.c
   1. Edit it so it always returns 1
-1. Edit the Makefile so the compiler used is `afl-clang` and `-fsanitize=address` is on
+1. Edit the Makefile so the compiler used is `afl-clang` and `-fsanitize=address` is on  --> 111111
 1. Run make
-1. Create two directories in `afl++`: `afl_in` and `afl_out`
-1. Copy the two image files from `seeds` to `afl_in`
+1. Create two directories in `afl++`: `afl_in` and `afl_out`   --> 111111
+1. Copy the two image files from `seeds` to `afl_in`  --> 111111
 1. Run `afl-fuzz -i afl_in -o afl_out -- <path_to_size> @@`
 1. Follow the instructions on screen to run AFL++. You may need to change some system settings (disable crash reporting
    and change the CPU governor)
    * `sudo bash -c 'echo core >/proc/sys/kernel/core_pattern'`
-1. Let AFL++ run until you are satisfied with the number of unique crashes
+1. Let AFL++ run until you are satisfied with the number of unique crashes --> 111111
 
 ### The Task
 
@@ -98,7 +98,7 @@ The `size` program takes an image file name as input and outputs the dimensions 
   4. Why are hangs counted as bugs in AFL++? Which type of attack can they be used for?
   5. Which interface of `libpngparser` remains untested by AFL++ (take a look at `pngparser.h`)?
 
-You are free to fix and report as many bugs as you like. Extra bugs will be used as replacements for the ones which
+You are free to fix and report as many bugs as you like. Extra bugs will be used as replacements for the ones which 
 aren't accepted.
 
 *Do not apply "point fixes" (which only stop the PoC from crashing but don't fix the underlying fault), we have some measures to detect it. Fix the bugs
