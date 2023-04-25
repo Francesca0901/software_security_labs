@@ -271,9 +271,10 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 
   return 0;
 
-error:                                  // free once
+error:
   if (chunk->chunk_data){
     free(chunk->chunk_data);
+    chunk->chunk_data = NULL; // bug one
   }
   return 1;
 }
@@ -401,13 +402,16 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   for (uint32_t idy = 0; idy < height; idy++) {
+    if ((1 + idy) * (1 + width) > inflated_size){       /// bug 2
+      break;
+    }
     // Filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + width)]) {
       free(img->px);
       free(img);
       return NULL;
     }
-    for (uint32_t idx = 0; idx < width; idx++) {
+    for (uint32_t idx = 0; idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
       palette_idx = inflated_buf[idy * (1 + width) + idx + 1];
       img->px[idy * img->size_x + idx].red = plte_entries[palette_idx].red;
       img->px[idy * img->size_x + idx].green = plte_entries[palette_idx].green;
@@ -446,12 +450,15 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
+    if ((1 + idy * (1 + 4 * width)) > inflated_size){   // bug 3 very close to bug 2
+      break;
+    }
     // The filter byte at the start of every scanline needs to be 0
-    if (inflated_buf[idy * (1 + 4 * width)]) {
+    if (inflated_buf[idy * (1 + 4 * width)]) {                
       goto error;
     }
 
-    for (uint32_t idx = 0; idx < width; idx++) {
+    for (uint32_t idx = 0; idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
       pixel_idx = idy * (1 + 4 * width) + 1 + 4 * idx;
 
       r_idx = pixel_idx;
@@ -555,6 +562,7 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
+  current_chunk->chunk_data = NULL; /////add
 
   FILE *input = fopen(filename, "rb");
 
@@ -574,8 +582,8 @@ int load_png(const char *filename, struct image **img) {
   }
 
   // Read all PNG chunks
-  for (; !read_png_chunk(input, current_chunk);
-       current_chunk = malloc(sizeof(struct png_chunk))) {
+  for (; !read_png_chunk(input, current_chunk); 
+      current_chunk = malloc(sizeof(struct png_chunk))) {
     chunk_idx++;
     // We have more chunks after IEND for some reason
     // IEND must be the last chunk
@@ -662,7 +670,7 @@ int load_png(const char *filename, struct image **img) {
         free(idat_chunk->chunk_data);
       }
 
-      free(idat_chunk);          
+      free(idat_chunk);
     }
 
     // unsupported chunk types
@@ -715,17 +723,17 @@ success:
   return 0;
 
 error:
-  fclose(input);
-
-  if (deflated_buf)
-    free(deflated_buf);
-
   if (current_chunk) {
     if (current_chunk->chunk_data) {
       free(current_chunk->chunk_data);
     }
     free(current_chunk);
   }
+
+  fclose(input);
+
+  if (deflated_buf)
+    free(deflated_buf);
 
   if (plte_chunk){
     free(plte_chunk);

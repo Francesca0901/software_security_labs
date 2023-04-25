@@ -15,4 +15,4 @@ Hangs means that it has entered an infinite loop or is stuck waiting for some re
 They can be used to triggle DoS.
 
 # Which interface of `libpngparser` remains untested by AFL++ (take a look at `pngparser.h`)?
-
+`store_png` remains untested.
