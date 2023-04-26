@@ -726,6 +726,9 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
+  if (inflated_buf)        //bug
+    free(inflated_buf);
+
   if (current_chunk) {
     if (current_chunk->chunk_data) {
       free(current_chunk->chunk_data);
@@ -768,6 +771,9 @@ error_input:
 
   if (deflated_buf)
     free(deflated_buf);
+
+  if (inflated_buf)
+    free(inflated_buf);
 
   if (plte_chunk){
     if (plte_chunk->chunk_data) {
