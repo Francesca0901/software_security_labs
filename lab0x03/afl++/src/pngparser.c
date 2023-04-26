@@ -274,7 +274,7 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 error:
   if (chunk->chunk_data){
     free(chunk->chunk_data);
-    chunk->chunk_data = NULL; // bug one
+    chunk->chunk_data = NULL; // bug 1
   }
   return 1;
 }
@@ -450,7 +450,7 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if ((1 + idy * (1 + 4 * width)) > inflated_size){   // bug 3 very close to bug 2
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size){   // bug 3 very similar to bug 2
       break;
     }
     // The filter byte at the start of every scanline needs to be 0
@@ -562,13 +562,13 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  current_chunk->chunk_data = NULL; /////add
+  current_chunk->chunk_data = NULL; // maybe bug n
 
   FILE *input = fopen(filename, "rb");
 
   // Has the file been open properly?
   if (!input) {
-    goto error;
+    goto error_input;
   }
 
   // Did we read the starting bytes properly?
@@ -616,6 +616,13 @@ int load_png(const char *filename, struct image **img) {
         goto error;
       }
 
+      // if (ihdr_chunk->chunk_data) {
+      //   free(ihdr_chunk->chunk_data);
+      //   ihdr_chunk->chunk_data = NULL;
+      // }
+      // free(ihdr_chunk);
+      // ihdr_chunk = NULL;
+
       continue;
     }
 
@@ -631,6 +638,13 @@ int load_png(const char *filename, struct image **img) {
       if (!plte_chunk) {
         goto error;
       }
+      
+      // if (plte_chunk->chunk_data) {
+      //   free(plte_chunk->chunk_data);
+      //   plte_chunk->chunk_data = NULL;
+      // }
+      // free(plte_chunk);
+      // plte_chunk = NULL;
 
       continue;
     }
@@ -642,6 +656,13 @@ int load_png(const char *filename, struct image **img) {
       if (!iend_chunk) {
         goto error;
       }
+
+      // if (iend_chunk->chunk_data) {
+      //   free(iend_chunk->chunk_data);
+      //   iend_chunk->chunk_data = NULL;
+      // }
+      // free(iend_chunk);
+      // iend_chunk = NULL;
 
       continue;
     }
@@ -668,9 +689,11 @@ int load_png(const char *filename, struct image **img) {
 
       if (idat_chunk->chunk_data) {
         free(idat_chunk->chunk_data);
+        idat_chunk->chunk_data = NULL;
       }
 
       free(idat_chunk);
+      idat_chunk = NULL;
     }
 
     // unsupported chunk types
@@ -711,18 +734,31 @@ success:
   }
 
   if (plte_chunk){
+    if (plte_chunk->chunk_data) {
+      free(plte_chunk->chunk_data);   ///bug
+    }
     free(plte_chunk);
   }
   if (ihdr_chunk){
+    if (ihdr_chunk->chunk_data) {
+      free(ihdr_chunk->chunk_data);
+    }
     free(ihdr_chunk);
   }
   if (iend_chunk) {
+    if (iend_chunk->chunk_data) {
+      free(iend_chunk->chunk_data);
+    }
     free(iend_chunk);
   }
 
   return 0;
 
 error:
+  fclose(input);
+
+error_input:
+
   if (current_chunk) {
     if (current_chunk->chunk_data) {
       free(current_chunk->chunk_data);
@@ -730,18 +766,25 @@ error:
     free(current_chunk);
   }
 
-  fclose(input);
-
   if (deflated_buf)
     free(deflated_buf);
 
   if (plte_chunk){
+    if (plte_chunk->chunk_data) {
+      free(plte_chunk->chunk_data);
+    }
     free(plte_chunk);
   }
   if (ihdr_chunk){
+    if (ihdr_chunk->chunk_data) {
+      free(ihdr_chunk->chunk_data);
+    }
     free(ihdr_chunk);
   }
   if (iend_chunk) {
+    if (iend_chunk->chunk_data) {
+      free(iend_chunk->chunk_data);
+    }
     free(iend_chunk);
   }
 

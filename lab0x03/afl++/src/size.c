@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     const char *input_name = argv[1];
 
     if (load_png(input_name, &img)) {
-        printf("load fail");
+        printf("load fail\n");
         return 1;
     }
 
