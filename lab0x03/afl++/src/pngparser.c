@@ -450,7 +450,7 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if (((1 + idy) * (1 + 4 * width)) > inflated_size){   // bug 3 very similar to bug 2
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size){   // bug 3
       break;
     }
     // The filter byte at the start of every scanline needs to be 0
@@ -562,13 +562,13 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  current_chunk->chunk_data = NULL; // maybe bug n
+  current_chunk->chunk_data = NULL; // bug 4
 
   FILE *input = fopen(filename, "rb");
 
   // Has the file been open properly?
   if (!input) {
-    goto error_input;
+    goto error;
   }
 
   // Did we read the starting bytes properly?
@@ -726,7 +726,7 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
-  if (inflated_buf)        //bug
+  if (inflated_buf)        //bug 6
     free(inflated_buf);
 
   if (current_chunk) {
@@ -738,7 +738,7 @@ success:
 
   if (plte_chunk){
     if (plte_chunk->chunk_data) {
-      free(plte_chunk->chunk_data);   ///bug
+      free(plte_chunk->chunk_data);   //bug 5
     }
     free(plte_chunk);
   }
@@ -759,8 +759,6 @@ success:
 
 error:
   fclose(input);
-
-error_input:
 
   if (current_chunk) {
     if (current_chunk->chunk_data) {
