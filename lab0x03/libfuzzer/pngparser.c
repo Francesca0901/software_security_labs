@@ -273,6 +273,7 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 error:
   if (chunk->chunk_data){
     free(chunk->chunk_data);
+    chunk->chunk_data = NULL; // fix 1
   }
   return 1;
 }
@@ -400,6 +401,9 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   for (uint32_t idy = 0; idy < height; idy++) {
+    if ((1 + idy) * (1 + width) > inflated_size){       /// fix 2
+      break;
+    }
     // Filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + width)]) {
       free(img->px);
@@ -445,6 +449,9 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size){   // fix 3
+      break;
+    }
     // The filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + 4 * width)]) {
       goto error;
@@ -557,12 +564,19 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
+  current_chunk->chunk_data = NULL; // fix 4
+
+  // // Check if the filename is a valid null-terminated string   // bug 1
+  // if (filename == NULL || strlen(filename) == 0) {
+  //   goto error_before_input;
+  // }
 
   FILE *input = fopen(filename, "rb");
 
   // Has the file been open properly?
   if (!input) {
-    goto error;
+    goto error_before_input;    // bug 2
+    // goto error;
   }
 
   // Did we read the starting bytes properly?
@@ -724,6 +738,9 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
+  if (inflated_buf)        //fix 6
+    free(inflated_buf);
+
   if (current_chunk) {
     if (current_chunk->chunk_data) {
       free(current_chunk->chunk_data);
@@ -732,12 +749,21 @@ success:
   }
 
   if (plte_chunk){
+    if (plte_chunk->chunk_data) {
+      free(plte_chunk->chunk_data);   //fix 5
+    }
     free(plte_chunk);
   }
   if (ihdr_chunk){
+    if (ihdr_chunk->chunk_data) {
+      free(ihdr_chunk->chunk_data);
+    }
     free(ihdr_chunk);
   }
   if (iend_chunk) {
+    if (iend_chunk->chunk_data) {
+      free(iend_chunk->chunk_data);
+    }
     free(iend_chunk);
   }
 
@@ -749,8 +775,7 @@ success:
 error:
   fclose(input);
 
-  if (deflated_buf)
-    free(deflated_buf);
+error_before_input:
 
   if (current_chunk) {
     if (current_chunk->chunk_data) {
@@ -759,15 +784,31 @@ error:
     free(current_chunk);
   }
 
+  if (deflated_buf)
+    free(deflated_buf);
+
+  if (inflated_buf)
+    free(inflated_buf);
+
   if (plte_chunk){
+    if (plte_chunk->chunk_data) {
+      free(plte_chunk->chunk_data);
+    }
     free(plte_chunk);
   }
   if (ihdr_chunk){
+    if (ihdr_chunk->chunk_data) {
+      free(ihdr_chunk->chunk_data);
+    }
     free(ihdr_chunk);
   }
   if (iend_chunk) {
+    if (iend_chunk->chunk_data) {
+      free(iend_chunk->chunk_data);
+    }
     free(iend_chunk);
   }
+
 
   /* For grading the custom mutator */
   // err_time++;

@@ -1,0 +1,32 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 4187880562
+INFO: Loaded 1 modules   (314 inline 8-bit counters): 314 [0x55d60366a250, 0x55d60366a38a), 
+INFO: Loaded 1 PC tables (314 PCs): 314 [0x55d60366a390,0x55d60366b730), 
+INFO:        2 files found in ./seeds
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==58214==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x7f97fa1b5844 bp 0x7ffc97191850 sp 0x7ffc97191670 T0)
+==58214==The signal is caused by a READ memory access.
+==58214==Hint: address points to the zero page.
+    #0 0x7f97fa1b5844 in fclose libio/./libio/iofclose.c:48:9
+    #1 0x55d6035b5a60 in fclose (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0xb2a60) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+    #2 0x55d603621ab8 in load_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:776:3
+    #3 0x55d60361eb1b in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name.cc:24:7
+    #4 0x55d6035473c3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0x443c3) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+    #5 0x55d603548560 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0x45560) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+    #6 0x55d603548bb2 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0x45bb2) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+    #7 0x55d603537232 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0x34232) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+    #8 0x55d603560f42 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0x5df42) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+    #9 0x7f97fa167189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+    #10 0x7f97fa167244 in __libc_start_main csu/../csu/libc-start.c:381:3
+    #11 0x55d60352ba60 in _start (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png_name+0x28a60) (BuildId: 942b8d9eb06b1f742941e98e6137c4b8cce5eb9f)
+
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV libio/./libio/iofclose.c:48:9 in fclose
+==58214==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+
+
+artifact_prefix='./'; Test unit written to ./crash-da39a3ee5e6b4b0d3255bfef95601890afd80709
+Base64: 

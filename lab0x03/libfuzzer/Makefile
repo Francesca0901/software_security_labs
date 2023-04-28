@@ -1,10 +1,12 @@
 CC = clang
 override CFLAGS += -g -w -O3 -fsanitize=fuzzer,address
 
-all: libpngparser fuzzer_load_png
+all: libpngparser fuzzer_load_png fuzzer_load_png_name
+# all: libpngparser fuzzer_load_png fuzzer_load_png_name fuzzer_store_png_rgba fuzzer_store_png_palette fuzzer_load_png_custom_mutator fuzzer_store_png_rgba_custom_mutator fuzzer_store_png_palette_custom_mutator
+
 
 clean:
-	rm -f libpngparser.a fuzzer_load_png *.o
+	rm -f libpngparser.a fuzzer_load_png fuzzer_load_png_name *.o
 
 .PHONY: all clean
 
@@ -13,11 +15,16 @@ libpngparser: pngparser.h pngparser.c crc.c crc.h
 	ar rcs libpngparser.a pngparser.o crc.o
 
 fuzzer_load_png:
-	$(CC) $(CFLAGS) -o fuzzer_load_png fuzzer_load_png.cc libpngparser.a -lz
+	$(CC) $(CFLAGS) -DPNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR -o fuzzer_load_png fuzzer_load_png.cc libpngparser.a -lz
+	rm -f *.o
+
 # Include "png_mutator.h" in fuzzer_load_png.cc and append -DPNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR to enable the example PNG mutator
 
 # TODO: fuzzer_load_png_name:
 # Fuzzes the filename argument of load_png.
+fuzzer_load_png_name:
+	$(CC) $(CFLAGS) -o fuzzer_load_png_name fuzzer_load_png_name.cc libpngparser.a -lz
+	rm -f *.o
 
 # TODO: fuzzer_store_png_rgba:
 # Fuzzes store_png RGBA file interface (no palette).
