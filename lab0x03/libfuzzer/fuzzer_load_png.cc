@@ -4,9 +4,11 @@ extern "C" {
 #include <stdio.h>
 
 #include "png_mutator.h"
+#include "yolo_png_mutator.h"
 
 // LibFuzzer stub
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+  // printf("start\n");
 
   struct image *test_img = NULL;
 

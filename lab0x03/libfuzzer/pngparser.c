@@ -543,8 +543,10 @@ struct image *parse_png(png_chunk_ihdr *ihdr_chunk, png_chunk_plte *plte_chunk,
 /* Reads a Y0l0 PNG from file and parses it into an image */
 int load_png(const char *filename, struct image **img) {
 
+  // printf("in load\n");
+
   /* For grading the custom mutator */
-  // static unsigned int err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err;
+  static unsigned int err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err;
 
   struct png_header_filesig filesig;
   png_chunk_ihdr *ihdr_chunk = NULL;
@@ -579,6 +581,8 @@ int load_png(const char *filename, struct image **img) {
     // goto error;
   }
 
+  // printf("in input\n");
+
   // Did we read the starting bytes properly?
   if (read_png_filesig(input, &filesig)) {
     goto error;
@@ -592,6 +596,9 @@ int load_png(const char *filename, struct image **img) {
   // Read all PNG chunks
   for (; !read_png_chunk(input, current_chunk);
        current_chunk = malloc(sizeof(struct png_chunk))) {
+    
+    // printf ("in read\n");
+
     chunk_idx++;
     // We have more chunks after IEND for some reason
     // IEND must be the last chunk
@@ -623,12 +630,12 @@ int load_png(const char *filename, struct image **img) {
       if (!ihdr_chunk) {
         /* For grading the custom mutator */
         // CHECKPOINT 1
-        // cp1_err++;
+        cp1_err++;
         goto error;
       }
       /* For grading the custom mutator */
-      // else
-      //   cp1_suc++;
+      else
+        cp1_suc++;
 
       continue;
     }
@@ -639,24 +646,24 @@ int load_png(const char *filename, struct image **img) {
       if (plte_chunk) {
         /* For grading the custom mutator */
         // CHECKPOINT 2
-        // cp2_err++;
+        cp2_err++;
         goto error;
       }
       /* For grading the custom mutator */
-      // else
-      //   cp2_suc++;
+      else
+        cp2_suc++;
 
       plte_chunk = format_plte_chunk(current_chunk);
 
       if (!plte_chunk) {
         /* For grading the custom mutator */
         // CHECKPOINT 3
-        // cp3_err++;
+        cp3_err++;
         goto error;
       }
       /* For grading the custom mutator */
-      // else
-      //   cp3_suc++;
+      else
+        cp3_suc++;
 
       continue;
     }
@@ -681,12 +688,12 @@ int load_png(const char *filename, struct image **img) {
       if (idat_train_finished) {
         /* For grading the custom mutator */
         // CHECKPOINT 4
-        // cp4_err++;
+        cp4_err++;
         goto error;
       }
       /* For grading the custom mutator */
-      // else
-      //   cp4_suc++;
+      else
+        cp4_suc++;
 
       idat_train_started = 1;
 
@@ -709,7 +716,7 @@ int load_png(const char *filename, struct image **img) {
     else{
       /* For grading the custom mutator */
       // CHECKPOINT 5
-      // cp5_err++;
+      cp5_err++;
       goto error;
     }
   }
@@ -767,9 +774,9 @@ success:
     free(iend_chunk);
   }
 
-      /* For grading the custom mutator */
-      // suc_time++;
-      // fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
+  /* For grading the custom mutator */
+  suc_time++;
+  // fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 0;
 
 error:
@@ -811,8 +818,8 @@ error_before_input:
 
 
   /* For grading the custom mutator */
-  // err_time++;
-  // fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
+  err_time++;
+  fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 1;
 }
 
