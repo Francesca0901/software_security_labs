@@ -1,12 +1,12 @@
 CC = clang
 override CFLAGS += -g -w -O3 -fsanitize=fuzzer,address
 
-all: libpngparser fuzzer_load_png fuzzer_load_png_name fuzzer_load_png_custom_mutator
+all: libpngparser fuzzer_load_png fuzzer_load_png_name fuzzer_store_png_rgba fuzzer_load_png_custom_mutator
 # all: libpngparser fuzzer_load_png fuzzer_load_png_name fuzzer_store_png_rgba fuzzer_store_png_palette fuzzer_load_png_custom_mutator fuzzer_store_png_rgba_custom_mutator fuzzer_store_png_palette_custom_mutator
 
 
 clean:
-	rm -f libpngparser.a fuzzer_load_png fuzzer_load_png_name fuzzer_load_png_custom_mutator *.o
+	rm -f libpngparser.a fuzzer_load_png fuzzer_load_png_name fuzzer_store_png_rgba fuzzer_load_png_custom_mutator *.o
 
 .PHONY: all clean
 
@@ -23,14 +23,14 @@ fuzzer_load_png:
 # TODO: fuzzer_load_png_name:
 # Fuzzes the filename argument of load_png.
 fuzzer_load_png_name:
-	$(CC) $(CFLAGS) -o fuzzer_load_png_name fuzzer_load_png_name.cc libpngparser.a -lz
+	$(CC) $(CFLAGS) -DYOLO_PNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR -o fuzzer_load_png_name fuzzer_load_png_name.cc libpngparser.a -lz
 	rm -f *.o
 
 # TODO: fuzzer_store_png_rgba:
 # Fuzzes store_png RGBA file interface (no palette).
-# fuzzer_store_png_rgba:
-# 	$(CC) $(CFLAGS) -o fuzzer_store_png_rgba fuzzer_store_png_rgba.cc libpngparser.a -lz
-# 	rm -f *.o
+fuzzer_store_png_rgba:
+	$(CC) $(CFLAGS) -DYOLO_PNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR -o fuzzer_store_png_rgba fuzzer_store_png_rgba.cc libpngparser.a -lz
+	rm -f *.o
 
 # TODO: fuzzer_store_png_palette:
 # Fuzzes store_png palette file interface (fixed palette).

@@ -18,6 +18,8 @@
 #define to_little_endian(x) (change_endianness(x))
 #define to_big_endian(x) (change_endianness(x))
 
+bool is_plte = false;
+
 /** Changes the endianness of the data
  */
 uint32_t change_endianness(uint32_t x) {
@@ -547,6 +549,7 @@ int load_png(const char *filename, struct image **img) {
 
   /* For grading the custom mutator */
   static unsigned int err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err;
+  is_plte = false;
 
   struct png_header_filesig filesig;
   png_chunk_ihdr *ihdr_chunk = NULL;
@@ -664,6 +667,7 @@ int load_png(const char *filename, struct image **img) {
       /* For grading the custom mutator */
       else
         cp3_suc++;
+        is_plte = true;
 
       continue;
     }
@@ -819,7 +823,7 @@ error_before_input:
 
   /* For grading the custom mutator */
   err_time++;
-  fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
+  // fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 1;
 }
 
@@ -979,7 +983,7 @@ int store_idat_rgb_alpha(FILE *output, struct image *img) {
   uint32_t non_compressed_length = img->size_y * (1 + img->size_x * 4);
   uint8_t *non_compressed_buf = malloc(non_compressed_length);
 
-  for (uint32_t id_y = 0; id_y <= img->size_y; id_y++) {
+  for (uint32_t id_y = 0; id_y < img->size_y; id_y++) {   //bug 2
     non_compressed_buf[id_y * (1 + img->size_x * 4)] = 0;
     for (uint32_t id_x = 0; id_x < img->size_x; id_x++) {
       uint32_t id_pix_buf = id_y * (1 + img->size_x * 4) + 1 + 4 * id_x;
@@ -1003,6 +1007,9 @@ int store_idat_rgb_alpha(FILE *output, struct image *img) {
 
   if(non_compressed_buf)
     free(non_compressed_buf);
+
+  if(compressed_data_buf)
+    free(compressed_data_buf);  // bug 3
 
   return 0;
 }

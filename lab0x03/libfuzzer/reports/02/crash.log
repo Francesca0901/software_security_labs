@@ -1,0 +1,35 @@
+INFO: found LLVMFuzzerCustomMutator (0x5637756dbab0). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1881635974
+INFO: Loaded 1 modules   (975 inline 8-bit counters): 975 [0x5637757369f0, 0x563775736dbf), 
+INFO: Loaded 1 PC tables (975 PCs): 975 [0x563775736dc0,0x56377573aab0), 
+INFO:        2 files found in ./seeds
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+err_time: 1, suc_time: 0, cp1_err: 0, cp1_suc: 0, cp2_err: 0, cp2_suc: 0, cp3_err: 0, cp3_suc: 0, cp4_err: 0, cp4_suc: 0, cp5_err: 0
+INFO: seed corpus: files: 2 min: 287b max: 1070b total: 1357b rss: 34Mb
+
+=================================================================
+==90038==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 1013 byte(s) in 1 object(s) allocated from:
+    #0 0x5637756a11a6 in __interceptor_realloc (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0xe61a6) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #1 0x5637756efc5c in compress_png_data /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:948:24
+    #2 0x5637756f09de in store_idat_rgb_alpha /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1002:3
+    #3 0x5637756f311f in store_png_rgb_alpha /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1070:3
+    #4 0x5637756f311f in store_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1131:5
+    #5 0x5637756e25c3 in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba.cc:22:7
+    #6 0x563775604473 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x49473) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #7 0x563775603b99 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x48b99) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #8 0x563775605778 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x4a778) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #9 0x563775605c62 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x4ac62) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #10 0x5637755f42e2 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x392e2) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #11 0x56377561dff2 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x62ff2) (BuildId: 748cafb07e3302e4787e034ce1a5cb62ef576840)
+    #12 0x7f7068c46189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+
+SUMMARY: AddressSanitizer: 1013 byte(s) leaked in 1 allocation(s).
+
+INFO: a leak has been found in the initial corpus.
+
+INFO: to ignore leaks on libFuzzer side use -detect_leaks=0.
+
+MS: 0 ; base unit: 0000000000000000000000000000000000000000

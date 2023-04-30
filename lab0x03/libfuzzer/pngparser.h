@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+extern bool is_plte;
 
 /* Each pixel consists of four channels: RGBA
  * 0 denotes black, while 0xff represents the maximum value the color can take

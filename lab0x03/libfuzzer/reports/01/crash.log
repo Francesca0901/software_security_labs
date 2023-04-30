@@ -1,0 +1,75 @@
+INFO: found LLVMFuzzerCustomMutator (0x55c083cbcab0). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 3335496972
+INFO: Loaded 1 modules   (972 inline 8-bit counters): 972 [0x55c083d179f0, 0x55c083d17dbc), 
+INFO: Loaded 1 PC tables (972 PCs): 972 [0x55c083d17dc0,0x55c083d1ba80), 
+INFO:        2 files found in ./seeds
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+err_time: 1, suc_time: 0, cp1_err: 0, cp1_suc: 0, cp2_err: 0, cp2_suc: 0, cp3_err: 0, cp3_suc: 0, cp4_err: 0, cp4_suc: 0, cp5_err: 0
+INFO: seed corpus: files: 2 min: 287b max: 1070b total: 1357b rss: 32Mb
+=================================================================
+==88967==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x62e00002e0a4 at pc 0x55c083cd17f1 bp 0x7fff05c0b050 sp 0x7fff05c0b048
+WRITE of size 1 at 0x62e00002e0a4 thread T0
+    #0 0x55c083cd17f0 in store_idat_rgb_alpha /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:987:54
+    #1 0x55c083cd411f in store_png_rgb_alpha /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1070:3
+    #2 0x55c083cd411f in store_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1131:5
+    #3 0x55c083cc35c3 in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba.cc:22:7
+    #4 0x55c083be5473 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x49473) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #5 0x55c083be4b99 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x48b99) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #6 0x55c083be6778 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x4a778) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #7 0x55c083be6c62 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x4ac62) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #8 0x55c083bd52e2 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x392e2) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #9 0x55c083bfeff2 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x62ff2) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #10 0x7fa13ae26189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+    #11 0x7fa13ae26244 in __libc_start_main csu/../csu/libc-start.c:381:3
+    #12 0x55c083bc9b10 in _start (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x2db10) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+
+0x62e00002e0a4 is located 0 bytes to the right of 40100-byte region [0x62e000024400,0x62e00002e0a4)
+allocated by thread T0 here:
+    #0 0x55c083c81d7e in malloc (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0xe5d7e) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #1 0x55c083cd154d in store_idat_rgb_alpha /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:984:33
+    #2 0x55c083cd411f in store_png_rgb_alpha /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1070:3
+    #3 0x55c083cd411f in store_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1131:5
+    #4 0x55c083cc35c3 in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba.cc:22:7
+    #5 0x55c083be5473 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x49473) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #6 0x55c083be4b99 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x48b99) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #7 0x55c083be6778 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x4a778) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #8 0x55c083be6c62 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x4ac62) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #9 0x55c083bd52e2 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x392e2) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #10 0x55c083bfeff2 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_rgba+0x62ff2) (BuildId: 662d9fb60f23b89899f2dc0012e99a38160d4ac4)
+    #11 0x7fa13ae26189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:987:54 in store_idat_rgb_alpha
+Shadow bytes around the buggy address:
+  0x0c5c7fffdbc0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c5c7fffdbd0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c5c7fffdbe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c5c7fffdbf0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c5c7fffdc00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x0c5c7fffdc10: 00 00 00 00[04]fa fa fa fa fa fa fa fa fa fa fa
+  0x0c5c7fffdc20: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c5c7fffdc30: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c5c7fffdc40: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c5c7fffdc50: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c5c7fffdc60: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==88967==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
