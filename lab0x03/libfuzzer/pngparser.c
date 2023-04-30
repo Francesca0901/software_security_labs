@@ -18,7 +18,9 @@
 #define to_little_endian(x) (change_endianness(x))
 #define to_big_endian(x) (change_endianness(x))
 
-bool is_plte = false;
+// bool is_plte = false;
+// struct pixel * plte_data = NULL;
+// uint8_t palette_length = 0;
 
 /** Changes the endianness of the data
  */
@@ -549,7 +551,9 @@ int load_png(const char *filename, struct image **img) {
 
   /* For grading the custom mutator */
   static unsigned int err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err;
-  is_plte = false;
+  // is_plte = false;
+  // plte_data = NULL;
+  // palette_length = 0;
 
   struct png_header_filesig filesig;
   png_chunk_ihdr *ihdr_chunk = NULL;
@@ -569,7 +573,7 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  current_chunk->chunk_data = NULL; // fix 4
+  current_chunk->chunk_data = NULL; // fix4
 
   // // Check if the filename is a valid null-terminated string   // bug 1
   // if (filename == NULL || strlen(filename) == 0) {
@@ -667,8 +671,13 @@ int load_png(const char *filename, struct image **img) {
       /* For grading the custom mutator */
       else
         cp3_suc++;
-        is_plte = true;
-
+        // is_plte = true;
+        // palette_length = plte_chunk->length / 3;
+        // plte_data = malloc(sizeof(struct pixel *) * palette_length);
+        // for (int i = 0; i < palette_length; i++){
+        //   plte_data[i] = (struct pixel *)plte_chunk->chunk_data[i];
+        // }
+        
       continue;
     }
 
@@ -1033,6 +1042,7 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
                     uint32_t palette_length) {
   uint32_t non_compressed_length = img->size_y * (1 + img->size_x);
   uint8_t *non_compressed_buf = malloc(non_compressed_length);
+  uint8_t *compressed_data_buf = NULL;
 
   for (uint32_t id_y = 0; id_y < img->size_y; id_y++) {
     non_compressed_buf[id_y * (1 + img->size_x)] = 0;
@@ -1047,7 +1057,7 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
     }
   }
 
-  uint8_t *compressed_data_buf = NULL;
+  // uint8_t *compressed_data_buf = NULL;
 
   uint32_t compressed_length;
 
@@ -1057,11 +1067,20 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
   png_chunk_idat idat = fill_idat_chunk(compressed_data_buf, compressed_length);
   store_png_chunk(output, (struct png_chunk *)&idat);
   
+  if (non_compressed_buf) {
+    free(non_compressed_buf);  //bug 
+  }
+  if (compressed_data_buf) {
+    free(compressed_data_buf);
+  }
   return 0;
 
 error:
   if (compressed_data_buf) {
     free(compressed_data_buf);
+  }
+  if (non_compressed_buf) {
+    free(non_compressed_buf);  //bug 
   }
 
   return 1;

@@ -1,0 +1,30 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 768507726
+INFO: Loaded 1 modules   (322 inline 8-bit counters): 322 [0x562dc0af6610, 0x562dc0af6752), 
+INFO: Loaded 1 PC tables (322 PCs): 322 [0x562dc0af6758,0x562dc0af7b78), 
+INFO:        2 files found in ./seeds
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 2 min: 287b max: 1070b total: 1357b rss: 30Mb
+in test
+=================================================================
+==7956==ERROR: AddressSanitizer: attempting free on address which was not malloc()-ed: 0x0fffe4019200 in thread T0
+    #0 0x562dc0a6fa22 in __interceptor_free (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0xe1a22) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #1 0x562dc0ab2603 in store_idat_plte /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1073:5
+    #2 0x562dc0ab4032 in store_png_palette /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1116:3
+    #3 0x562dc0ab4032 in store_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:1141:5
+    #4 0x562dc0aaad52 in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette.cc:30:5
+    #5 0x562dc09d33c3 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x453c3) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #6 0x562dc09d2ae9 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x44ae9) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #7 0x562dc09d46c8 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x466c8) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #8 0x562dc09d4bb2 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x46bb2) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #9 0x562dc09c3232 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x35232) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #10 0x562dc09ecf42 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x5ef42) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+    #11 0x7f7a81b67189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+    #12 0x7f7a81b67244 in __libc_start_main csu/../csu/libc-start.c:381:3
+    #13 0x562dc09b7a60 in _start (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0x29a60) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a)
+
+Address 0x0fffe4019200 is located in the high shadow area.
+SUMMARY: AddressSanitizer: bad-free (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_store_png_palette+0xe1a22) (BuildId: c8a5fa2d13ae0b1d71beecd281f27065dd0fa08a) in __interceptor_free
+==7956==ABORTING
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+artifact_prefix='./'; Test unit written to ./crash-2d5ff885f157e7321b0f50c06272f3da682963af
