@@ -726,8 +726,8 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
-  if (inflated_buf)        //bug 6
-    free(inflated_buf);
+  // if (inflated_buf)        //bug 6
+  //   free(inflated_buf);
 
   if (current_chunk) {
     if (current_chunk->chunk_data) {

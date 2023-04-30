@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-extern bool is_plte;
-extern struct pixel * plte_data;
-extern uint8_t palette_length;
+// extern bool is_plte;
+// extern struct pixel * plte_data;
+// extern uint8_t palette_length;
 
 /* Each pixel consists of four channels: RGBA
  * 0 denotes black, while 0xff represents the maximum value the color can take

@@ -758,7 +758,7 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
-  if (inflated_buf)        //fix 6
+  if (inflated_buf)        // bug
     free(inflated_buf);
 
   if (current_chunk) {
@@ -1067,12 +1067,12 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
   png_chunk_idat idat = fill_idat_chunk(compressed_data_buf, compressed_length);
   store_png_chunk(output, (struct png_chunk *)&idat);
   
-  if (non_compressed_buf) {
-    free(non_compressed_buf);  //bug 
-  }
-  if (compressed_data_buf) {
-    free(compressed_data_buf);
-  }
+  // if (non_compressed_buf) {
+  //   free(non_compressed_buf);  //bug 
+  // }
+  // if (compressed_data_buf) {
+  //   free(compressed_data_buf);
+  // }
   return 0;
 
 error:

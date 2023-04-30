@@ -1,0 +1,33 @@
+INFO: found LLVMFuzzerCustomMutator (0x5613040a8ab0). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1918028698
+INFO: Loaded 1 modules   (905 inline 8-bit counters): 905 [0x561304104240, 0x5613041045c9), 
+INFO: Loaded 1 PC tables (905 PCs): 905 [0x5613041045d0,0x561304107e60), 
+INFO:        2 files found in ./seeds
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: seed corpus: files: 2 min: 287b max: 1070b total: 1357b rss: 30Mb
+
+=================================================================
+==30619==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 10100 byte(s) in 1 object(s) allocated from:
+    #0 0x56130406e1a6 in __interceptor_realloc (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0xe71a6) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #1 0x5613040b6d70 in decompress_png_data /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:363:21
+    #2 0x5613040b8fc4 in load_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:743:7
+    #3 0x5613040aff75 in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png.cc:21:7
+    #4 0x561303fd1473 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x4a473) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #5 0x561303fd0b99 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x49b99) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #6 0x561303fd2778 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x4b778) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #7 0x561303fd2c62 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x4bc62) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #8 0x561303fc12e2 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x3a2e2) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #9 0x561303feaff2 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x63ff2) (BuildId: cb0c02d65e31b8c62c87ccc0352fdb742e3cee4d)
+    #10 0x7f2a62347189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+
+SUMMARY: AddressSanitizer: 10100 byte(s) leaked in 1 allocation(s).
+
+INFO: a leak has been found in the initial corpus.
+
+INFO: to ignore leaks on libFuzzer side use -detect_leaks=0.
+
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+artifact_prefix='./'; Test unit written to ./leak-2d5ff885f157e7321b0f50c06272f3da682963af

@@ -3,8 +3,11 @@ Yes it do affect the default mutator's performance, because the default mutator 
 For the other two mutators it won't affect. Because the libfuzzer is Structure-Aware Fuzzing and when we add the example PNG mutator and custom mutator, we inform the fuzzer of the possible mutations within the valid input space, so our input should pass the png chunk valid check now.
 
 2. How many PCs are covered within `100000 fuzzing runs` with your `fuzzer_store_png_rgba`, equiped with libFuzzer's default mutator, the example PNG mutator, and your custom YOLO PNG mutator separately? Do these numbers reflect the extent to which `store_png` has been teseted?
+- default: 106
+- PNG: 116
+- YOLO PNG: 116
+Yes, the higher the number is, the more paths we have tested, so it means more extensively we have tested.
 
-
-3. Do you think the mutator you customized (that aims at only generating well-formatted YOLO PNG inputs) helpful for finding bugs in `load_png`? Why?
+1. Do you think the mutator you customized (that aims at only generating well-formatted YOLO PNG inputs) helpful for finding bugs in `load_png`? Why?
 It will help to some extend, because it generate valid YOLO inputs, and will make our tests dive deeper, and will also made our tests more efficient.
 However it's not sufficient to only generate valid YOLO PNG format, because real world senario doesn't only contains valid PNG input, and if we are not successfully dealing with invalid input, the bug can't be triggered using this customized mutator.
