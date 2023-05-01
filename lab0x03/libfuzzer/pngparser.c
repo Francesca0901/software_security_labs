@@ -789,7 +789,7 @@ success:
 
   /* For grading the custom mutator */
   suc_time++;
-  // fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
+  fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 0;
 
 error:
@@ -832,7 +832,7 @@ error_before_input:
 
   /* For grading the custom mutator */
   err_time++;
-  // fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
+  fprintf(stderr, "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, cp5_err: %u\n", err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 1;
 }
 
@@ -1067,12 +1067,12 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
   png_chunk_idat idat = fill_idat_chunk(compressed_data_buf, compressed_length);
   store_png_chunk(output, (struct png_chunk *)&idat);
   
-  // if (non_compressed_buf) {
-  //   free(non_compressed_buf);  //bug 
-  // }
-  // if (compressed_data_buf) {
-  //   free(compressed_data_buf);
-  // }
+  if (non_compressed_buf) {
+    free(non_compressed_buf);  //bug 
+  }
+  if (compressed_data_buf) {
+    free(compressed_data_buf);
+  }
   return 0;
 
 error:

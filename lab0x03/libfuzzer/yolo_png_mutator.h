@@ -60,16 +60,19 @@ class YoloPngMutator {
       in.read((char *)v.data(), len);
       Read4(in);  // ignore CRC
 
-      if (type == Type("IDAT")) {
+      if (type == Type("PLTE")) {
+        chunks_.push_back({type, v});
+      } else if (type == Type("IDAT")) {
         if (idat_idx != -1)
           Append(&chunks_[idat_idx].v, v);
         else {
           idat_idx = chunks_.size();
           chunks_.push_back({type, v});
         }
-      } else if (type == Type("PLTE")){
-        chunks_.push_back({type, v});
-      }
+      } 
+      // else if (type == Type("PLTE")){
+        // chunks_.push_back({type, v});
+      // }
       //  std::cerr << "CHUNK: " << chunk_name << std::endl;
     }
     if (idat_idx != -1)
@@ -80,11 +83,21 @@ class YoloPngMutator {
   void Serialize(std::ostream &out) {
     const unsigned char header[] = {0x89, 0x50, 0x4e, 0x47,
                                     0x0d, 0x0a, 0x1a, 0x0a};
+    // bool chunk_idx = 0;
     out.write((const char*)header, sizeof(header));
     WriteChunk(out, "IHDR", ihdr_);
 
     for (auto &ch : chunks_) {
-      WriteChunk(out, ch.type, ch.v);
+      if (ch.type == Type("PLET")){
+        WriteChunk(out, ch.type, ch.v);
+        break;
+      }
+    }
+
+    for (auto &ch : chunks_) {
+      if (ch.type == Type("IDAT")){
+        WriteChunk(out, ch.type, ch.v);
+      }
     }
 
     WriteChunk(out, "IEND", {});
@@ -113,7 +126,7 @@ class YoloPngMutator {
     switch (rnd() % 5) {
       // Mutate IHDR.
       case 0:
-        m(ihdr_.data(), ihdr_.size(), ihdr_.size());
+        // m(ihdr_.data(), ihdr_.size(), ihdr_.size());
         break;
       // Mutate some other chunk.
       case 1:

@@ -5,7 +5,7 @@ For the other two mutators it won't affect. Because the libfuzzer is Structure-A
 2. How many PCs are covered within `100000 fuzzing runs` with your `fuzzer_store_png_rgba`, equiped with libFuzzer's default mutator, the example PNG mutator, and your custom YOLO PNG mutator separately? Do these numbers reflect the extent to which `store_png` has been teseted?
 - default: 106
 - PNG: 116
-- YOLO PNG: 116
+- YOLO PNG: 102
 Yes, the higher the number is, the more paths we have tested, so it means more extensively we have tested.
 
 1. Do you think the mutator you customized (that aims at only generating well-formatted YOLO PNG inputs) helpful for finding bugs in `load_png`? Why?
