@@ -127,6 +127,7 @@ class YoloPngMutator {
       // Mutate IHDR.
       case 0:
         // m(ihdr_.data(), ihdr_.size(), ihdr_.size());
+        m(ihdr_.data(), 8, 8); //only mutate the width and the height
         break;
       // Mutate some other chunk.
       case 1:
@@ -222,14 +223,24 @@ class YoloPngMutator {
     chunks.insert(chunks.end(), idat_chunks.begin(), idat_chunks.end());
   }
 
-  // Takes a random chunk from p and inserts into *this.
+  // Takes a random IDAT chunk from p and inserts into *this.
   void CrossOver(const YoloPngMutator &p, unsigned int Seed) {
-    if (p.chunks_.empty()) return;
+    // we only want IDAT
+    std::vector<Chunk> idat_chunks;
+    for (const auto& chunk : p.chunks_) {
+      if (chunk.type == Type("IDAT")) {
+        idat_chunks.push_back(chunk);
+      }
+    }
+    if (idat_chunks.empty()) return;
+    
     std::minstd_rand rnd(Seed);
-    size_t idx = rnd() % p.chunks_.size();
-    auto &ch = p.chunks_[idx];
+    size_t idx = rnd() % idat_chunks.size();
+    auto &ch = idat_chunks[idx];
+
+    //just randomly pick position, we will do serialization later
     size_t pos = rnd() % (chunks_.size() + 1);
-    chunks_.insert(chunks_.begin() + pos, ch);
+    chunks_.insert(chunks_.begin() + pos, ch); 
   }
 
  private:

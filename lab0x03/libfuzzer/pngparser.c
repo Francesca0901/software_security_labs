@@ -18,9 +18,6 @@
 #define to_little_endian(x) (change_endianness(x))
 #define to_big_endian(x) (change_endianness(x))
 
-// bool is_plte = false;
-// struct pixel * plte_data = NULL;
-// uint8_t palette_length = 0;
 
 /** Changes the endianness of the data
  */
@@ -551,9 +548,6 @@ int load_png(const char *filename, struct image **img) {
 
   /* For grading the custom mutator */
   static unsigned int err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err;
-  // is_plte = false;
-  // plte_data = NULL;
-  // palette_length = 0;
 
   struct png_header_filesig filesig;
   png_chunk_ihdr *ihdr_chunk = NULL;
@@ -573,12 +567,12 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  current_chunk->chunk_data = NULL; // fix4
+  current_chunk->chunk_data = NULL; // fix 4
 
-  // // Check if the filename is a valid null-terminated string   // bug 1
-  // if (filename == NULL || strlen(filename) == 0) {
-  //   goto error_before_input;
-  // }
+  // Check if the filename is a valid null-terminated string 
+  if (filename == NULL || strlen(filename) == 0) {
+    goto error_before_input;
+  }
 
   FILE *input = fopen(filename, "rb");
 
@@ -671,12 +665,6 @@ int load_png(const char *filename, struct image **img) {
       /* For grading the custom mutator */
       else
         cp3_suc++;
-        // is_plte = true;
-        // palette_length = plte_chunk->length / 3;
-        // plte_data = malloc(sizeof(struct pixel *) * palette_length);
-        // for (int i = 0; i < palette_length; i++){
-        //   plte_data[i] = (struct pixel *)plte_chunk->chunk_data[i];
-        // }
         
       continue;
     }
