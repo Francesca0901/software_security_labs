@@ -1,13 +1,13 @@
 // Copyright 2019 Google Inc. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
 #include <algorithm>
+#include <cassert>
+#include <cstring>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstring>
-#include <cassert>
-#include <random>
 
 #include <zlib.h>
 
@@ -24,8 +24,7 @@
 class PngMutator {
   using V = std::vector<uint8_t>;
 
- public:
-
+public:
   // Parse the input stream as a PNG file,
   // put every chunk into its own vector,
   // uncompress chunk data when needed,
@@ -35,24 +34,28 @@ class PngMutator {
     Read4(in);
     Read4(in); // Skip the 8-byte magic value.
     // read IHDR.
-    if (ReadInteger(in) != 13) return;
-    if (Read4(in) != Type("IHDR")) return;
+    if (ReadInteger(in) != 13)
+      return;
+    if (Read4(in) != Type("IHDR"))
+      return;
     // Read 13 values.
-    in.read((char*)ihdr_.data(), ihdr_.size());
-    Read4(in);  // ignore CRC
+    in.read((char *)ihdr_.data(), ihdr_.size());
+    Read4(in); // ignore CRC
     ssize_t idat_idx = -1;
 
     while (in) {
       uint32_t len = ReadInteger(in);
       uint32_t type = Read4(in);
-      if (type == Type("IEND")) break;  // do nothing
+      if (type == Type("IEND"))
+        break; // do nothing
       char chunk_name[5];
       memcpy(chunk_name, &type, 4);
       chunk_name[4] = 0;
-      if (len > (1 << 20)) return;
+      if (len > (1 << 20))
+        return;
       V v(len);
       in.read((char *)v.data(), len);
-      Read4(in);  // ignore CRC
+      Read4(in); // ignore CRC
 
       if (type == Type("IDAT")) {
         if (idat_idx != -1)
@@ -63,9 +66,12 @@ class PngMutator {
         }
       } else if (type == Type("iCCP")) {
         auto it = v.begin();
-        while (it < v.end() && isprint(*it)) it++;
-        if (it < v.end() && !*it) it++;
-        if (it < v.end() && !*it) it++;
+        while (it < v.end() && isprint(*it))
+          it++;
+        if (it < v.end() && !*it)
+          it++;
+        if (it < v.end() && !*it)
+          it++;
         v = V(it, v.end());
         auto uncompressed = Uncompress(v);
         chunks_.push_back({type, uncompressed});
@@ -83,12 +89,12 @@ class PngMutator {
   void Serialize(std::ostream &out) {
     const unsigned char header[] = {0x89, 0x50, 0x4e, 0x47,
                                     0x0d, 0x0a, 0x1a, 0x0a};
-    out.write((const char*)header, sizeof(header));
+    out.write((const char *)header, sizeof(header));
     WriteChunk(out, "IHDR", ihdr_);
     for (auto &ch : chunks_) {
       if (ch.type == Type("iCCP")) {
         V v;
-        v.push_back('x');  // assuming the iCCP name doesn't matter.
+        v.push_back('x'); // assuming the iCCP name doesn't matter.
         v.push_back(0);
         v.push_back(0);
         auto compressed = Compress(ch.v);
@@ -115,59 +121,60 @@ class PngMutator {
       v->resize(m(v->data(), v->size(), v->size()));
     };
     switch (rnd() % 6) {
-      // Mutate IHDR.
-      case 0:
-        m(ihdr_.data(), ihdr_.size(), ihdr_.size());
-        break;
-      // Mutate some other chunk.
-      case 1:
-        if (!chunks_.empty()) M(&chunks_[rnd() % chunks_.size()].v);
-        break;
-      // Shuffle the chunks.
-      case 2:
-        std::shuffle(chunks_.begin(), chunks_.end(), rnd);
-        break;
-      // Delete a random chunk.
-      case 3:
-        if (!chunks_.empty())
-         chunks_.erase(chunks_.begin() + rnd() % chunks_.size());
-        break;
-      // Insert a random chunk with one of the known types, or a random type.
-      case 4: {
-        static const char *types[] = {
-            "IATx", "sTER", "hIST", "sPLT", "mkBF", "mkBS", "mkTS", "prVW",
-            "oFFs", "iDOT", "zTXt", "mkBT", "acTL", "iTXt", "sBIT", "tIME",
-            "iCCP", "vpAg", "tRNS", "cHRM", "PLTE", "bKGD", "gAMA", "sRGB",
-            "pHYs", "fdAT", "fcTL", "tEXt", "IDAT",
-            "pCAL", "sCAL", "eXIf",
-            "fUZz", // special chunk for extra fuzzing hints.
-        };
-        static const size_t n_types = sizeof(types) / sizeof(types[0]);
-        uint32_t type =
-            (rnd() % 10 <= 8) ? Type(types[rnd() % n_types]) : (uint32_t)rnd();
-        size_t len = rnd() % 256;
-        if (type == Type("fUZz"))
-          len = 16;
-        V v(len);
-        for (auto &b : v) b = rnd();
-        size_t pos = rnd() % (chunks_.size() + 1);
-        chunks_.insert(chunks_.begin() + pos, {type, v});
-      } break;
-      // Any more interesting mutations with a PNG file?
-      case 5: {
-        auto it = std::find_if(
-            chunks_.begin(), chunks_.end(),
-            [](const Chunk &ch) { return ch.type == Type("fUZz"); });
-        if (it != chunks_.end())
-          m(it->v.data(), it->v.size(), it->v.size());
-      }
-
+    // Mutate IHDR.
+    case 0:
+      m(ihdr_.data(), ihdr_.size(), ihdr_.size());
+      break;
+    // Mutate some other chunk.
+    case 1:
+      if (!chunks_.empty())
+        M(&chunks_[rnd() % chunks_.size()].v);
+      break;
+    // Shuffle the chunks.
+    case 2:
+      std::shuffle(chunks_.begin(), chunks_.end(), rnd);
+      break;
+    // Delete a random chunk.
+    case 3:
+      if (!chunks_.empty())
+        chunks_.erase(chunks_.begin() + rnd() % chunks_.size());
+      break;
+    // Insert a random chunk with one of the known types, or a random type.
+    case 4: {
+      static const char *types[] = {
+          "IATx", "sTER", "hIST", "sPLT", "mkBF", "mkBS", "mkTS", "prVW",
+          "oFFs", "iDOT", "zTXt", "mkBT", "acTL", "iTXt", "sBIT", "tIME",
+          "iCCP", "vpAg", "tRNS", "cHRM", "PLTE", "bKGD", "gAMA", "sRGB",
+          "pHYs", "fdAT", "fcTL", "tEXt", "IDAT", "pCAL", "sCAL", "eXIf",
+          "fUZz", // special chunk for extra fuzzing hints.
+      };
+      static const size_t n_types = sizeof(types) / sizeof(types[0]);
+      uint32_t type =
+          (rnd() % 10 <= 8) ? Type(types[rnd() % n_types]) : (uint32_t)rnd();
+      size_t len = rnd() % 256;
+      if (type == Type("fUZz"))
+        len = 16;
+      V v(len);
+      for (auto &b : v)
+        b = rnd();
+      size_t pos = rnd() % (chunks_.size() + 1);
+      chunks_.insert(chunks_.begin() + pos, {type, v});
+    } break;
+    // Any more interesting mutations with a PNG file?
+    case 5: {
+      auto it =
+          std::find_if(chunks_.begin(), chunks_.end(),
+                       [](const Chunk &ch) { return ch.type == Type("fUZz"); });
+      if (it != chunks_.end())
+        m(it->v.data(), it->v.size(), it->v.size());
+    }
     }
   }
 
   // Takes a random chunk from p and inserts into *this.
   void CrossOver(const PngMutator &p, unsigned int Seed) {
-    if (p.chunks_.empty()) return;
+    if (p.chunks_.empty())
+      return;
     std::minstd_rand rnd(Seed);
     size_t idx = rnd() % p.chunks_.size();
     auto &ch = p.chunks_[idx];
@@ -175,7 +182,7 @@ class PngMutator {
     chunks_.insert(chunks_.begin() + pos, ch);
   }
 
- private:
+private:
   void Append(V *to, const V &from) {
     to->insert(to->end(), from.begin(), from.end());
   }
@@ -219,7 +226,7 @@ class PngMutator {
       crc = crc32(crc, (const unsigned char *)v->data(), v->size());
     WriteInt(out, len);
     out.write(type, 4);
-    out.write((const char*)v->data(), v->size());
+    out.write((const char *)v->data(), v->size());
     WriteInt(out, crc);
   }
 
@@ -238,8 +245,10 @@ class PngMutator {
       unsigned long len = sz;
       auto res =
           uncompress(v.data(), &len, compressed.data(), compressed.size());
-      if (res == Z_BUF_ERROR) continue;
-      if (res != Z_OK) return {};
+      if (res == Z_BUF_ERROR)
+        continue;
+      if (res != Z_OK)
+        return {};
       v.resize(len);
       break;
     }
@@ -254,8 +263,10 @@ class PngMutator {
       unsigned long len = sz;
       auto res =
           compress(v.data(), &len, uncompressed.data(), uncompressed.size());
-      if (res == Z_BUF_ERROR) continue;
-      if (res != Z_OK) return {};
+      if (res == Z_BUF_ERROR)
+        continue;
+      if (res != Z_OK)
+        return {};
       v.resize(len);
       break;
     }
@@ -278,28 +289,29 @@ class PngMutator {
   std::vector<Chunk> chunks_;
 };
 
-
 #ifdef PNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR
 
 extern "C" size_t LLVMFuzzerMutate(uint8_t *Data, size_t Size, size_t MaxSize);
 
 #if STANDALONE_TARGET
 size_t LLVMFuzzerMutate(uint8_t *Data, size_t Size, size_t MaxSize) {
-  assert(false && "LLVMFuzzerMutate should not be called from StandaloneFuzzTargetMain");
+  assert(false &&
+         "LLVMFuzzerMutate should not be called from StandaloneFuzzTargetMain");
   return 0;
 }
 #endif
 
 extern "C" size_t LLVMFuzzerCustomMutator(uint8_t *Data, size_t Size,
                                           size_t MaxSize, unsigned int Seed) {
-  std::string s(reinterpret_cast<const char*>(Data), Size);
+  std::string s(reinterpret_cast<const char *>(Data), Size);
   std::stringstream in(s);
   std::stringstream out;
   PngMutator p(in);
   p.Mutate(LLVMFuzzerMutate, Seed);
   p.Serialize(out);
   const auto &str = out.str();
-  if (str.size() > MaxSize) return Size;
+  if (str.size() > MaxSize)
+    return Size;
   memcpy(Data, str.data(), str.size());
   return str.size();
 }
@@ -318,9 +330,10 @@ extern "C" size_t LLVMFuzzerCustomCrossOver(const uint8_t *Data1, size_t Size1,
   std::stringstream out;
   p1.Serialize(out);
   const auto &str = out.str();
-  if (str.size() > MaxOutSize) return 0;
+  if (str.size() > MaxOutSize)
+    return 0;
   memcpy(Out, str.data(), str.size());
   return str.size();
 }
 
-#endif  // PNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR
+#endif // PNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR

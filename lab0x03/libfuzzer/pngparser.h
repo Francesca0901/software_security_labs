@@ -1,10 +1,10 @@
 #ifndef PNG_PARSER_H
 #define PNG_PARSER_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 // extern bool is_plte;
 // extern struct pixel * plte_data;
