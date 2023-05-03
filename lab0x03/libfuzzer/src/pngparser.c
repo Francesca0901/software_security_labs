@@ -224,17 +224,15 @@ int is_png_filesig_valid(struct png_header_filesig *filesig) {
  * Do not modify it in the libFuzzer lab.
  */
 int is_png_chunk_valid(struct png_chunk *chunk) {
-  // uint32_t crc_value =
-  //     crc((unsigned char *)&chunk->chunk_type, sizeof(int32_t));
+  uint32_t crc_value =
+      crc((unsigned char *)&chunk->chunk_type, sizeof(int32_t));
 
-  // if (chunk->length) {
-  //   crc_value = update_crc(crc_value ^ 0xffffffffL,
-  //                          (unsigned char *)chunk->chunk_data, chunk->length)
-  //                          ^
-  //               0xffffffffL;
-  // }
-  // return chunk->crc == crc_value;
-  return 1;
+  if (chunk->length) {
+    crc_value = update_crc(crc_value ^ 0xffffffffL,
+                           (unsigned char *)chunk->chunk_data, chunk->length) ^
+                0xffffffffL;
+  }
+  return chunk->crc == crc_value;
 }
 
 /* Fill the chunk with the data from the file.*/
@@ -275,7 +273,7 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 error:
   if (chunk->chunk_data) {
     free(chunk->chunk_data);
-    chunk->chunk_data = NULL; // bug 1
+    chunk->chunk_data = NULL; // fix 1
   }
   return 1;
 }
@@ -403,7 +401,7 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if ((1 + idy) * (1 + width) > inflated_size) { /// bug 2
+    if ((1 + idy) * (1 + width) > inflated_size) { /// fix 2
       break;
     }
     // Filter byte at the start of every scanline needs to be 0
@@ -412,8 +410,7 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
       free(img);
       return NULL;
     }
-    for (uint32_t idx = 0;
-         idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
+    for (uint32_t idx = 0; idx < width; idx++) {
       palette_idx = inflated_buf[idy * (1 + width) + idx + 1];
       img->px[idy * img->size_x + idx].red = plte_entries[palette_idx].red;
       img->px[idy * img->size_x + idx].green = plte_entries[palette_idx].green;
@@ -452,7 +449,7 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // bug 3
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // fix 3
       break;
     }
     // The filter byte at the start of every scanline needs to be 0
@@ -460,8 +457,7 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
       goto error;
     }
 
-    for (uint32_t idx = 0;
-         idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
+    for (uint32_t idx = 0; idx < width; idx++) {
       pixel_idx = idy * (1 + 4 * width) + 1 + 4 * idx;
 
       r_idx = pixel_idx;
@@ -546,6 +542,12 @@ struct image *parse_png(png_chunk_ihdr *ihdr_chunk, png_chunk_plte *plte_chunk,
 /* Reads a Y0l0 PNG from file and parses it into an image */
 int load_png(const char *filename, struct image **img) {
 
+  // printf("in load\n");
+
+  /* For grading the custom mutator */
+  static unsigned int err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc,
+      cp3_err, cp3_suc, cp4_err, cp4_suc, cp5_err;
+
   struct png_header_filesig filesig;
   png_chunk_ihdr *ihdr_chunk = NULL;
   png_chunk_plte *plte_chunk = NULL;
@@ -564,14 +566,22 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  current_chunk->chunk_data = NULL; // bug 4
+  current_chunk->chunk_data = NULL; // fix 4
+
+  // Check if the filename is a valid null-terminated string
+  if (filename == NULL || strlen(filename) == 0) {
+    goto error_before_input;
+  }
 
   FILE *input = fopen(filename, "rb");
 
   // Has the file been open properly?
   if (!input) {
-    goto error;
+    goto error_before_input; // bug 2
+    // goto error;
   }
+
+  // printf("in input\n");
 
   // Did we read the starting bytes properly?
   if (read_png_filesig(input, &filesig)) {
@@ -586,6 +596,9 @@ int load_png(const char *filename, struct image **img) {
   // Read all PNG chunks
   for (; !read_png_chunk(input, current_chunk);
        current_chunk = malloc(sizeof(struct png_chunk))) {
+
+    // printf ("in read\n");
+
     chunk_idx++;
     // We have more chunks after IEND for some reason
     // IEND must be the last chunk
@@ -615,15 +628,14 @@ int load_png(const char *filename, struct image **img) {
       ihdr_chunk = format_ihdr_chunk(current_chunk);
 
       if (!ihdr_chunk) {
+        /* For grading the custom mutator */
+        // CHECKPOINT 1
+        cp1_err++;
         goto error;
       }
-
-      // if (ihdr_chunk->chunk_data) {
-      //   free(ihdr_chunk->chunk_data);
-      //   ihdr_chunk->chunk_data = NULL;
-      // }
-      // free(ihdr_chunk);
-      // ihdr_chunk = NULL;
+      /* For grading the custom mutator */
+      else
+        cp1_suc++;
 
       continue;
     }
@@ -632,21 +644,26 @@ int load_png(const char *filename, struct image **img) {
     if (is_chunk_plte(current_chunk)) {
       // Only 1 PLTE is allowed
       if (plte_chunk) {
+        /* For grading the custom mutator */
+        // CHECKPOINT 2
+        cp2_err++;
         goto error;
       }
+      /* For grading the custom mutator */
+      else
+        cp2_suc++;
 
       plte_chunk = format_plte_chunk(current_chunk);
 
       if (!plte_chunk) {
+        /* For grading the custom mutator */
+        // CHECKPOINT 3
+        cp3_err++;
         goto error;
       }
-
-      // if (plte_chunk->chunk_data) {
-      //   free(plte_chunk->chunk_data);
-      //   plte_chunk->chunk_data = NULL;
-      // }
-      // free(plte_chunk);
-      // plte_chunk = NULL;
+      /* For grading the custom mutator */
+      else
+        cp3_suc++;
 
       continue;
     }
@@ -659,13 +676,6 @@ int load_png(const char *filename, struct image **img) {
         goto error;
       }
 
-      // if (iend_chunk->chunk_data) {
-      //   free(iend_chunk->chunk_data);
-      //   iend_chunk->chunk_data = NULL;
-      // }
-      // free(iend_chunk);
-      // iend_chunk = NULL;
-
       continue;
     }
 
@@ -676,8 +686,14 @@ int load_png(const char *filename, struct image **img) {
       // If we have already processed a sequence of IDATs, why do we see another
       // one here?
       if (idat_train_finished) {
+        /* For grading the custom mutator */
+        // CHECKPOINT 4
+        cp4_err++;
         goto error;
       }
+      /* For grading the custom mutator */
+      else
+        cp4_suc++;
 
       idat_train_started = 1;
 
@@ -691,15 +707,16 @@ int load_png(const char *filename, struct image **img) {
 
       if (idat_chunk->chunk_data) {
         free(idat_chunk->chunk_data);
-        idat_chunk->chunk_data = NULL;
       }
 
       free(idat_chunk);
-      idat_chunk = NULL;
     }
 
     // unsupported chunk types
     else {
+      /* For grading the custom mutator */
+      // CHECKPOINT 5
+      cp5_err++;
       goto error;
     }
   }
@@ -728,8 +745,8 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
-  // if (inflated_buf)        //bug 6
-  //   free(inflated_buf);
+  if (inflated_buf) // bug
+    free(inflated_buf);
 
   if (current_chunk) {
     if (current_chunk->chunk_data) {
@@ -740,7 +757,7 @@ success:
 
   if (plte_chunk) {
     if (plte_chunk->chunk_data) {
-      free(plte_chunk->chunk_data); // bug 5
+      free(plte_chunk->chunk_data); // fix 5
     }
     free(plte_chunk);
   }
@@ -757,10 +774,20 @@ success:
     free(iend_chunk);
   }
 
+  /* For grading the custom mutator */
+  suc_time++;
+  fprintf(stderr,
+          "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, "
+          "cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, "
+          "cp5_err: %u\n",
+          err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err,
+          cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 0;
 
 error:
   fclose(input);
+
+error_before_input:
 
   if (current_chunk) {
     if (current_chunk->chunk_data) {
@@ -794,6 +821,14 @@ error:
     free(iend_chunk);
   }
 
+  /* For grading the custom mutator */
+  err_time++;
+  fprintf(stderr,
+          "err_time: %u, suc_time: %u, cp1_err: %u, cp1_suc: %u, cp2_err: %u, "
+          "cp2_suc: %u, cp3_err: %u, cp3_suc: %u, cp4_err: %u, cp4_suc: %u, "
+          "cp5_err: %u\n",
+          err_time, suc_time, cp1_err, cp1_suc, cp2_err, cp2_suc, cp3_err,
+          cp3_suc, cp4_err, cp4_suc, cp5_err);
   return 1;
 }
 
@@ -953,7 +988,7 @@ int store_idat_rgb_alpha(FILE *output, struct image *img) {
   uint32_t non_compressed_length = img->size_y * (1 + img->size_x * 4);
   uint8_t *non_compressed_buf = malloc(non_compressed_length);
 
-  for (uint32_t id_y = 0; id_y <= img->size_y; id_y++) {
+  for (uint32_t id_y = 0; id_y < img->size_y; id_y++) { // bug 2
     non_compressed_buf[id_y * (1 + img->size_x * 4)] = 0;
     for (uint32_t id_x = 0; id_x < img->size_x; id_x++) {
       uint32_t id_pix_buf = id_y * (1 + img->size_x * 4) + 1 + 4 * id_x;
@@ -978,6 +1013,9 @@ int store_idat_rgb_alpha(FILE *output, struct image *img) {
   if (non_compressed_buf)
     free(non_compressed_buf);
 
+  if (compressed_data_buf)
+    free(compressed_data_buf); // bug 3
+
   return 0;
 }
 
@@ -1000,6 +1038,7 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
                     uint32_t palette_length) {
   uint32_t non_compressed_length = img->size_y * (1 + img->size_x);
   uint8_t *non_compressed_buf = malloc(non_compressed_length);
+  uint8_t *compressed_data_buf = NULL;
 
   for (uint32_t id_y = 0; id_y < img->size_y; id_y++) {
     non_compressed_buf[id_y * (1 + img->size_x)] = 0;
@@ -1014,7 +1053,7 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
     }
   }
 
-  uint8_t *compressed_data_buf = NULL;
+  // uint8_t *compressed_data_buf = NULL;
 
   uint32_t compressed_length;
 
@@ -1024,11 +1063,20 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
   png_chunk_idat idat = fill_idat_chunk(compressed_data_buf, compressed_length);
   store_png_chunk(output, (struct png_chunk *)&idat);
 
+  if (non_compressed_buf) {
+    free(non_compressed_buf); // bug
+  }
+  if (compressed_data_buf) {
+    free(compressed_data_buf);
+  }
   return 0;
 
 error:
   if (compressed_data_buf) {
     free(compressed_data_buf);
+  }
+  if (non_compressed_buf) {
+    free(non_compressed_buf); // bug
   }
 
   return 1;
