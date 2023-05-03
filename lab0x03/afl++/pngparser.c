@@ -219,7 +219,7 @@ int is_png_filesig_valid(struct png_header_filesig *filesig) {
   return !memcmp(filesig, "\211PNG\r\n\032\n", 8);
 }
 
-/* CRC for a chunk. This prevents data corruption. 
+/* CRC for a chunk. This prevents data corruption.
  * Patch it to always return 1 in the AFL++ lab.
  * Do not modify it in the libFuzzer lab.
  */
@@ -229,7 +229,8 @@ int is_png_chunk_valid(struct png_chunk *chunk) {
 
   // if (chunk->length) {
   //   crc_value = update_crc(crc_value ^ 0xffffffffL,
-  //                          (unsigned char *)chunk->chunk_data, chunk->length) ^
+  //                          (unsigned char *)chunk->chunk_data, chunk->length)
+  //                          ^
   //               0xffffffffL;
   // }
   // return chunk->crc == crc_value;
@@ -271,9 +272,10 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 
   return 0;
 
-error:                                  // free once
-  if (chunk->chunk_data){
+error:
+  if (chunk->chunk_data) {
     free(chunk->chunk_data);
+    chunk->chunk_data = NULL; // bug 1
   }
   return 1;
 }
@@ -393,6 +395,9 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   uint32_t width = ihdr_header->width;
   uint32_t palette_idx = 0;
 
+  if (!plte_chunk) {
+    return NULL;
+  }
   struct plte_entry *plte_entries = (struct plte_entry *)plte_chunk->chunk_data;
 
   struct image *img = malloc(sizeof(struct image));
@@ -401,13 +406,17 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   for (uint32_t idy = 0; idy < height; idy++) {
+    if ((1 + idy) * (1 + width) > inflated_size) { /// bug 2
+      break;
+    }
     // Filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + width)]) {
       free(img->px);
       free(img);
       return NULL;
     }
-    for (uint32_t idx = 0; idx < width; idx++) {
+    for (uint32_t idx = 0;
+         idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
       palette_idx = inflated_buf[idy * (1 + width) + idx + 1];
       img->px[idy * img->size_x + idx].red = plte_entries[palette_idx].red;
       img->px[idy * img->size_x + idx].green = plte_entries[palette_idx].green;
@@ -446,12 +455,16 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // bug 3
+      break;
+    }
     // The filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + 4 * width)]) {
       goto error;
     }
 
-    for (uint32_t idx = 0; idx < width; idx++) {
+    for (uint32_t idx = 0;
+         idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
       pixel_idx = idy * (1 + 4 * width) + 1 + 4 * idx;
 
       r_idx = pixel_idx;
@@ -475,7 +488,6 @@ error:
     }
     free(img);
   }
-
 }
 
 /* Creates magic unicorns */
@@ -555,6 +567,7 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
+  current_chunk->chunk_data = NULL; // bug 4
 
   FILE *input = fopen(filename, "rb");
 
@@ -608,6 +621,13 @@ int load_png(const char *filename, struct image **img) {
         goto error;
       }
 
+      // if (ihdr_chunk->chunk_data) {
+      //   free(ihdr_chunk->chunk_data);
+      //   ihdr_chunk->chunk_data = NULL;
+      // }
+      // free(ihdr_chunk);
+      // ihdr_chunk = NULL;
+
       continue;
     }
 
@@ -624,6 +644,13 @@ int load_png(const char *filename, struct image **img) {
         goto error;
       }
 
+      // if (plte_chunk->chunk_data) {
+      //   free(plte_chunk->chunk_data);
+      //   plte_chunk->chunk_data = NULL;
+      // }
+      // free(plte_chunk);
+      // plte_chunk = NULL;
+
       continue;
     }
 
@@ -634,6 +661,13 @@ int load_png(const char *filename, struct image **img) {
       if (!iend_chunk) {
         goto error;
       }
+
+      // if (iend_chunk->chunk_data) {
+      //   free(iend_chunk->chunk_data);
+      //   iend_chunk->chunk_data = NULL;
+      // }
+      // free(iend_chunk);
+      // iend_chunk = NULL;
 
       continue;
     }
@@ -660,13 +694,15 @@ int load_png(const char *filename, struct image **img) {
 
       if (idat_chunk->chunk_data) {
         free(idat_chunk->chunk_data);
+        idat_chunk->chunk_data = NULL;
       }
 
-      free(idat_chunk);          
+      free(idat_chunk);
+      idat_chunk = NULL;
     }
 
     // unsupported chunk types
-    else{
+    else {
       goto error;
     }
   }
@@ -695,6 +731,9 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
+  if (inflated_buf)        //bug 6
+    free(inflated_buf);
+
   if (current_chunk) {
     if (current_chunk->chunk_data) {
       free(current_chunk->chunk_data);
@@ -702,13 +741,22 @@ success:
     free(current_chunk);
   }
 
-  if (plte_chunk){
+  if (plte_chunk) {
+    if (plte_chunk->chunk_data) {
+      free(plte_chunk->chunk_data); // bug 5
+    }
     free(plte_chunk);
   }
-  if (ihdr_chunk){
+  if (ihdr_chunk) {
+    if (ihdr_chunk->chunk_data) {
+      free(ihdr_chunk->chunk_data);
+    }
     free(ihdr_chunk);
   }
   if (iend_chunk) {
+    if (iend_chunk->chunk_data) {
+      free(iend_chunk->chunk_data);
+    }
     free(iend_chunk);
   }
 
@@ -717,9 +765,6 @@ success:
 error:
   fclose(input);
 
-  if (deflated_buf)
-    free(deflated_buf);
-
   if (current_chunk) {
     if (current_chunk->chunk_data) {
       free(current_chunk->chunk_data);
@@ -727,13 +772,28 @@ error:
     free(current_chunk);
   }
 
-  if (plte_chunk){
+  if (deflated_buf)
+    free(deflated_buf);
+
+  if (inflated_buf)
+    free(inflated_buf);
+
+  if (plte_chunk) {
+    if (plte_chunk->chunk_data) {
+      free(plte_chunk->chunk_data);
+    }
     free(plte_chunk);
   }
-  if (ihdr_chunk){
+  if (ihdr_chunk) {
+    if (ihdr_chunk->chunk_data) {
+      free(ihdr_chunk->chunk_data);
+    }
     free(ihdr_chunk);
   }
   if (iend_chunk) {
+    if (iend_chunk->chunk_data) {
+      free(iend_chunk->chunk_data);
+    }
     free(iend_chunk);
   }
 
@@ -918,7 +978,7 @@ int store_idat_rgb_alpha(FILE *output, struct image *img) {
   png_chunk_idat idat = fill_idat_chunk(compressed_data_buf, compressed_length);
   store_png_chunk(output, (struct png_chunk *)&idat);
 
-  if(non_compressed_buf)
+  if (non_compressed_buf)
     free(non_compressed_buf);
 
   return 0;
@@ -966,7 +1026,7 @@ int store_idat_plte(FILE *output, struct image *img, struct pixel *palette,
 
   png_chunk_idat idat = fill_idat_chunk(compressed_data_buf, compressed_length);
   store_png_chunk(output, (struct png_chunk *)&idat);
-  
+
   return 0;
 
 error:

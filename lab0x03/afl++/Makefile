@@ -1,5 +1,6 @@
 CC = clang
 override CFLAGS += -g -w -O3 -fsanitize=address
+# override CFLAGS += -g -w -O3
 
 all: libpngparser size
 
@@ -14,6 +15,7 @@ libpngparser: pngparser.h pngparser.c crc.c crc.h
 
 size: libpngparser size.c
 	$(CC) $(CFLAGS) -o size size.c libpngparser.a -lz
+	rm -f *.o
 
 # Run `make check` to see if you fix the example bug correctly and your code compiles successfully
 check: libpngparser size

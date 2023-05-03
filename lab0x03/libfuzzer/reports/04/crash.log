@@ -33,4 +33,3 @@ INFO: to ignore leaks on libFuzzer side use -detect_leaks=0.
 
 MS: 0 ; base unit: 0000000000000000000000000000000000000000
 artifact_prefix='./'; Test unit written to ./leak-2d5ff885f157e7321b0f50c06272f3da682963af
-artifact_prefix='./'; Test unit written to ./leak-2d5ff885f157e7321b0f50c06272f3da682963af

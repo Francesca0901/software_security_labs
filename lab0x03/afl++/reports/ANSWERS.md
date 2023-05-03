@@ -1,10 +1,11 @@
 # Why did you need to change `is_png_chunk_valid`?
-Because this is AFL++ in “Dumb” Mode, and it uses mutation-based fuzzing to generate input data that is likely to trigger bugs in the target binary, by making random modifications to the input files in *alf_in*. Not all of the modifications meet the requirment of is_png_chunk_valid, to keep our blackbox fuzzer working, we just remove the input format check.
+Because AFL++ uses mutation-based fuzzing to generate input data that is likely to trigger bugs in the target binary, by making random modifications to the input files in *alf_in*. Not all of the modifications meet the requirment of is_png_chunk_valid, to keep our blackbox fuzzer working, we just remove the input format check.
 More specificly, we are disabling CRC checking, because as tutorial saids: 'Mutation-based fuzzing is unaware of input structure/grammar, fails hard checks. Disabling CRC checks allows fuzzer to progress in the target, finds bugs in deeper code.'
 
 # Why did you have to use `afl-clang` to compile the source (and not e.g. ordinary clang)?
 To instrument the target, we need to select a compiler. As said in [Fuzzing with AFL++](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#a-selecting-the-best-afl-compiler-for-instrumenting-the-target), AFL++ comes with a central compiler afl-cc that incorporates various different kinds of compiler targets and instrumentation options. 
-We are using a symlink to afl-cc: afl-gcc, afl-g++, afl-clang, afl-clang++, afl-clang-fast, afl-clang-fast++, afl-clang-lto, afl-clang-lto++, afl-gcc-fast, afl-g++-fast to select the mode for the afl-cc compiler.
+As a modified version of Clang which includes AFL instrumentation, it will inserts additional codes into the program during compilation that records code coverage information, and benifit our fuzzing.
+We are using a symlink to afl-cc: afl-gcc, afl-g++, afl-clang, afl-clang++, afl-clang-fast, afl-clang-fast++, afl-clang-lto, afl-clang-lto++, afl-gcc-fast, afl-g++-fast to select the mode for the afl-cc compiler. 
 
 # How long did you fuzz? How many crashes in total did AFL++ produce? How many unique crashes?
 I fuzzed for 24 min, 48 sec. 

@@ -393,6 +393,10 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   uint32_t width = ihdr_header->width;
   uint32_t palette_idx = 0;
 
+  if (!plte_chunk) { // fix 03
+    return NULL;
+  }
+
   struct plte_entry *plte_entries = (struct plte_entry *)plte_chunk->chunk_data;
 
   struct image *img = malloc(sizeof(struct image));
@@ -401,9 +405,9 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if ((1 + idy) * (1 + width) > inflated_size) { /// fix 2
-      break;
-    }
+    // if ((1 + idy) * (1 + width) > inflated_size) { ///
+    //   break;
+    // }
     // Filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + width)]) {
       free(img->px);
@@ -449,9 +453,9 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // fix 3
-      break;
-    }
+    // if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // 
+    //   break;
+    // }
     // The filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + 4 * width)]) {
       goto error;
@@ -566,7 +570,7 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  current_chunk->chunk_data = NULL; // fix 4
+  current_chunk->chunk_data = NULL; // bug
 
   // Check if the filename is a valid null-terminated string
   if (filename == NULL || strlen(filename) == 0) {
@@ -757,7 +761,7 @@ success:
 
   if (plte_chunk) {
     if (plte_chunk->chunk_data) {
-      free(plte_chunk->chunk_data); // fix 5
+      free(plte_chunk->chunk_data); // fix 2
     }
     free(plte_chunk);
   }

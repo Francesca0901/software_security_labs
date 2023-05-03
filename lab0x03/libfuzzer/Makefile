@@ -16,7 +16,7 @@ libpngparser: pngparser.h pngparser.c crc.c crc.h
 	ar rcs libpngparser.a pngparser.o crc.o
 
 fuzzer_load_png:
-	$(CC) $(CFLAGS) -o fuzzer_load_png fuzzer_load_png.cc libpngparser.a -lz
+	$(CC) $(CFLAGS) -DPNG_MUTATOR_DEFINE_LIBFUZZER_CUSTOM_MUTATOR -o fuzzer_load_png fuzzer_load_png.cc libpngparser.a -lz
 	rm -f *.o
 
 #Include "png_mutator.h" in fuzzer_load_png.cc and append -                    \
