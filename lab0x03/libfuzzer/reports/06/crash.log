@@ -1,0 +1,37 @@
+INFO: found LLVMFuzzerCustomMutator (0x563e3bbfbab0). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 394873593
+INFO: Loaded 1 modules   (934 inline 8-bit counters): 934 [0x563e3bc582a0, 0x563e3bc58646), 
+INFO: Loaded 1 PC tables (934 PCs): 934 [0x563e3bc58648,0x563e3bc5c0a8), 
+INFO:        3 files found in ./seeds
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+err_time: 1, suc_time: 0, cp1_err: 0, cp1_suc: 0, cp2_err: 0, cp2_suc: 0, cp3_err: 0, cp3_suc: 0, cp4_err: 0, cp4_suc: 0, cp5_err: 0
+INFO: seed corpus: files: 3 min: 287b max: 1070b total: 1658b rss: 34Mb
+err_time: 1, suc_time: 1, cp1_err: 0, cp1_suc: 1, cp2_err: 0, cp2_suc: 1, cp3_err: 0, cp3_suc: 1, cp4_err: 0, cp4_suc: 1, cp5_err: 0
+==1129906== ERROR: libFuzzer: out-of-memory (malloc(4114410329))
+   To change the out-of-memory limit use -rss_limit_mb=<N>
+
+    #0 0x563e3bbcae61 in __sanitizer_print_stack_trace (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0xf0e61) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #1 0x563e3bb3d7b8 in fuzzer::PrintStackTrace() (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x637b8) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #2 0x563e3bb222c5 in fuzzer::Fuzzer::HandleMalloc(unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x482c5) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #3 0x563e3bb221da in fuzzer::MallocHook(void const volatile*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x481da) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #4 0x563e3bbd22e7 in __sanitizer::RunMallocHooks(void const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0xf82e7) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #5 0x563e3bb409e4 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x669e4) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #6 0x563e3bb40323 in __asan::asan_malloc(unsigned long, __sanitizer::BufferedStackTrace*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x66323) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #7 0x563e3bbc0ddd in malloc (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0xe6ddd) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #8 0x563e3bc0b8f7 in read_png_chunk /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:250:25
+    #9 0x563e3bc0b8f7 in load_png /home/cc/homework/softsec/lab0x03/libfuzzer/pngparser.c:637:11
+    #10 0x563e3bc02f75 in LLVMFuzzerTestOneInput /home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png.cc:21:7
+    #11 0x563e3bb24473 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x4a473) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #12 0x563e3bb23b99 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x49b99) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #13 0x563e3bb25778 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x4b778) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #14 0x563e3bb25c62 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile> >&) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x4bc62) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #15 0x563e3bb142e2 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x3a2e2) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #16 0x563e3bb3dff2 in main (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x63ff2) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+    #17 0x7f3c8f846189 in __libc_start_call_main csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+    #18 0x7f3c8f846244 in __libc_start_main csu/../csu/libc-start.c:381:3
+    #19 0x563e3bb08b10 in _start (/home/cc/homework/softsec/lab0x03/libfuzzer/fuzzer_load_png+0x2eb10) (BuildId: fd060d0b4aa871b2da97c42a2227237b1a16e4c3)
+
+MS: 0 ; base unit: 0000000000000000000000000000000000000000
+artifact_prefix='./'; Test unit written to ./oom-834ebe2c6a21df0c75df9c5dd9ef438960de7720
+SUMMARY: libFuzzer: out-of-memory

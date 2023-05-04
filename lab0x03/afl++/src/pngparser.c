@@ -401,12 +401,19 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   struct plte_entry *plte_entries = (struct plte_entry *)plte_chunk->chunk_data;
 
   struct image *img = malloc(sizeof(struct image));
+
+  // bug 06
+  if (height > UINT16_MAX || width > UINT16_MAX) {
+    free(img);
+    return NULL;
+  }
+
   img->size_y = height;
   img->size_x = width;
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if ((1 + idy) * (1 + width) > inflated_size) { /// fix 04
+    if ((1 + idy) * (1 + width) > inflated_size) { /// bug 04
       break;
     }
     // Filter byte at the start of every scanline needs to be 0
@@ -416,8 +423,17 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
       return NULL;
     }
     for (uint32_t idx = 0;
-         idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
+         (idx < width) && ((idy * (1 + width) + idx + 1) < inflated_size);
+         idx++) { // bug 05
       palette_idx = inflated_buf[idy * (1 + width) + idx + 1];
+
+      // if (sizeof(plte_entries) / sizeof(struct plte_entry) <
+      //     palette_idx + 1) { // potential bug
+      //   free(img->px);
+      //   free(img);
+      //   return NULL;
+      // }
+
       img->px[idy * img->size_x + idx].red = plte_entries[palette_idx].red;
       img->px[idy * img->size_x + idx].green = plte_entries[palette_idx].green;
       img->px[idy * img->size_x + idx].blue = plte_entries[palette_idx].blue;
@@ -455,7 +471,7 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // fix 04
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // bug 04
       break;
     }
     // The filter byte at the start of every scanline needs to be 0
@@ -464,7 +480,8 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
     }
 
     for (uint32_t idx = 0;
-         idx < width && (idy * img->size_x + idx) < inflated_size; idx++) {
+         (idx < width) && (idy * (1 + 4 * width) + idx + 1) < inflated_size;
+         idx++) { // bug 05
       pixel_idx = idy * (1 + 4 * width) + 1 + 4 * idx;
 
       r_idx = pixel_idx;
@@ -567,7 +584,7 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  // current_chunk->chunk_data = NULL; // bug save for phase 2
+  current_chunk->chunk_data = NULL; // bug save for phase 2
 
   FILE *input = fopen(filename, "rb");
 

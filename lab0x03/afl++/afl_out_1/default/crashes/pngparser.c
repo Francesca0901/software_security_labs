@@ -275,7 +275,7 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 error:
   if (chunk->chunk_data) {
     free(chunk->chunk_data);
-    chunk->chunk_data = NULL; // bug 01
+    chunk->chunk_data = NULL; // bug save for phase 2
   }
   return 1;
 }
@@ -567,7 +567,7 @@ int load_png(const char *filename, struct image **img) {
   int chunk_idx = -1;
 
   struct png_chunk *current_chunk = malloc(sizeof(struct png_chunk));
-  // current_chunk->chunk_data = NULL; // bug save for phase 2
+  current_chunk->chunk_data = NULL; // bug save for phase 2
 
   FILE *input = fopen(filename, "rb");
 
@@ -731,7 +731,7 @@ success:
   if (deflated_buf)
     free(deflated_buf);
 
-  // if (inflated_buf) // bug save for phase 2
+  // if (inflated_buf) // bug
   //   free(inflated_buf);
 
   if (current_chunk) {

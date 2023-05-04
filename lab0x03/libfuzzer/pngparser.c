@@ -245,15 +245,34 @@ int read_png_chunk(FILE *file, struct png_chunk *chunk) {
 
   chunk->length = to_little_endian(chunk->length);
 
-  if (chunk->length) {
+  // if (chunk->length) {
 
-    chunk->chunk_data = malloc(chunk->length);
-    if (!chunk->chunk_data)
+  //   chunk->chunk_data = malloc(chunk->length);
+  //   if (!chunk->chunk_data)
+  //     goto error;
+
+  //   if (fread(chunk->chunk_data, chunk->length, 1, file) != 1) {
+  //     goto error;
+  //   }
+  // }
+
+  int allocated_so_far = 0;
+  while (allocated_so_far < chunk->length) {
+    int new_allocated_size = allocated_so_far + 500000;
+    if (new_allocated_size > chunk->length)
+      new_allocated_size = chunk->length;
+
+    void* new_ptr = realloc(chunk->chunk_data, new_allocated_size);
+    
+    if (!new_ptr)
       goto error;
 
-    if (fread(chunk->chunk_data, chunk->length, 1, file) != 1) {
+    chunk->chunk_data = new_ptr;
+
+    if (fread(chunk->chunk_data + allocated_so_far, new_allocated_size - allocated_so_far, 1, file) != 1) {
       goto error;
     }
+    allocated_so_far = new_allocated_size;
   }
 
   if (fread(&chunk->crc, sizeof(int32_t), 1, file) != 1) {
@@ -400,21 +419,36 @@ struct image *convert_color_palette_to_image(png_chunk_ihdr *ihdr_chunk,
   struct plte_entry *plte_entries = (struct plte_entry *)plte_chunk->chunk_data;
 
   struct image *img = malloc(sizeof(struct image));
+  if (!img) return NULL;
+
+  // fix 06
+  if (height > UINT16_MAX || width > UINT16_MAX) {
+    free(img);
+    return NULL;
+  }
+
   img->size_y = height;
   img->size_x = width;
   img->px = malloc(sizeof(struct pixel) * img->size_x * img->size_y);
+  // bug 07
+  if (!img->px){
+    if (img) free(img);
+    return NULL;
+  }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    // if ((1 + idy) * (1 + width) > inflated_size) { ///
-    //   break;
-    // }
+    if ((1 + idy) * (1 + width) > inflated_size) { /// fix 04
+      break;
+    }
     // Filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + width)]) {
       free(img->px);
       free(img);
       return NULL;
     }
-    for (uint32_t idx = 0; idx < width; idx++) {
+    for (uint32_t idx = 0;
+         (idx < width) && ((idy * (1 + width) + idx + 1) < inflated_size);
+         idx++) { // bug 05
       palette_idx = inflated_buf[idy * (1 + width) + idx + 1];
       img->px[idy * img->size_x + idx].red = plte_entries[palette_idx].red;
       img->px[idy * img->size_x + idx].green = plte_entries[palette_idx].green;
@@ -453,15 +487,17 @@ struct image *convert_rgb_alpha_to_image(png_chunk_ihdr *ihdr_chunk,
   }
 
   for (uint32_t idy = 0; idy < height; idy++) {
-    // if (((1 + idy) * (1 + 4 * width)) > inflated_size) { // 
-    //   break;
-    // }
+    if (((1 + idy) * (1 + 4 * width)) > inflated_size) { //
+      break;
+    }
     // The filter byte at the start of every scanline needs to be 0
     if (inflated_buf[idy * (1 + 4 * width)]) {
       goto error;
     }
 
-    for (uint32_t idx = 0; idx < width; idx++) {
+    for (uint32_t idx = 0;
+         (idx < width) && (idy * (1 + 4 * width) + idx + 1) < inflated_size;
+         idx++) { // fix 05
       pixel_idx = idy * (1 + 4 * width) + 1 + 4 * idx;
 
       r_idx = pixel_idx;
